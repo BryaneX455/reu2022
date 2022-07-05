@@ -2,25 +2,9 @@
 =======================================================================================
 Topic extraction with Non-negative Matrix Factorization and Latent Dirichlet Allocation
 =======================================================================================
-
-This is an example of applying :class:`~sklearn.decomposition.NMF` and
-:class:`~sklearn.decomposition.LatentDirichletAllocation` on a corpus
-of documents and extract additive models of the topic structure of the
-corpus.  The output is a plot of topics, each represented as bar plot
-using top few words based on weights.
-
-Non-negative Matrix Factorization is applied with two different objective
-functions: the Frobenius norm, and the generalized Kullback-Leibler divergence.
-The latter is equivalent to Probabilistic Latent Semantic Indexing.
-
-The default parameters (n_samples / n_features / n_components) should make
-the example runnable in a couple of tens of seconds. You can try to
-increase the dimensions of the problem, but be aware that the time
-complexity is polynomial in NMF. In LDA, the time complexity is
-proportional to (n_samples * iterations).
-
 """
-
+# This code has been adapted from the original version 
+# developed by the authors for educational purposes
 # Author: Olivier Grisel <olivier.grisel@ensta.org>
 #         Lars Buitinck
 #         Chyi-Kwei Yau <chyikwei.yau@gmail.com>
@@ -28,6 +12,7 @@ proportional to (n_samples * iterations).
 
 from time import time
 import matplotlib.pyplot as plt
+from matplotlib.pyplot import ion
 
 from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
 from sklearn.decomposition import NMF, MiniBatchNMF, LatentDirichletAllocation
@@ -40,8 +25,15 @@ n_top_words = 20
 batch_size = 128
 init = "nndsvda"
 
-
 def plot_top_words(model, feature_names, n_top_words, title):
+    """Generates the Bar Graph based on provided arguments
+
+    Args:
+        model: Name of the specific model we're using for the analysis
+        feature_names: Names of the features
+        n_top_words: The number of top words that we want to show
+        title: Title of the Bar Graph
+    """
     fig, axes = plt.subplots(2, 5, figsize=(30, 15), sharex=True)
     axes = axes.flatten()
     for topic_idx, topic in enumerate(model.components_):
@@ -59,7 +51,9 @@ def plot_top_words(model, feature_names, n_top_words, title):
         fig.suptitle(title, fontsize=40)
 
     plt.subplots_adjust(top=0.90, bottom=0.05, wspace=0.90, hspace=0.3)
-    plt.show()
+    image_format = 'svg'
+    image_name = title + '.svg'
+    fig.savefig(image_name, format=image_format, dpi=1200)
 
 
 # Load the 20 newsgroups dataset and vectorize it. We use a few heuristics
