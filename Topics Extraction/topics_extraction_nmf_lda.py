@@ -1,10 +1,11 @@
 """
-=======================================================================================
-Topic extraction with Non-negative Matrix Factorization and Latent Dirichlet Allocation
-=======================================================================================
+=======================================================
+Topic Modeling with Non-negative Matrix Factorization
+=======================================================
 """
-# This code has been adapted from the original version 
-# developed by the authors for educational purposes
+
+# This code has been adapted for educational & research 
+# purposes from the original version developed by authors :-
 # Author: Olivier Grisel <olivier.grisel@ensta.org>
 #         Lars Buitinck
 #         Chyi-Kwei Yau <chyikwei.yau@gmail.com>
@@ -12,18 +13,17 @@ Topic extraction with Non-negative Matrix Factorization and Latent Dirichlet All
 
 from time import time
 import matplotlib.pyplot as plt
-from matplotlib.pyplot import ion
 
-from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
-from sklearn.decomposition import NMF, MiniBatchNMF, LatentDirichletAllocation
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.decomposition import NMF, MiniBatchNMF
 from sklearn.datasets import fetch_20newsgroups
 
-n_samples = 2000
-n_features = 1000
+n_samples = 2500
+n_features = 1250
 n_components = 10
-n_top_words = 20
-batch_size = 128
-init = "nndsvda"
+n_top_words = 25
+batch_size = 256
+init = "nndsvda" # Nonnegative Double Singular Value Decomposition (NNDSVD) - Sparsness not desired
 
 def plot_top_words(model, feature_names, n_top_words, title):
     """Generates the Bar Graph based on provided arguments
@@ -56,42 +56,41 @@ def plot_top_words(model, feature_names, n_top_words, title):
     fig.savefig(image_name, format=image_format, dpi=1200)
 
 
-# Load the 20 newsgroups dataset and vectorize it. We use a few heuristics
-# to filter out useless terms early on: the posts are stripped of headers,
-# footers and quoted replies, and common English words, words occurring in
-# only one document or in at least 95% of the documents are removed.
 
+# Loading the 20 newsgroups dataset and vectorize it :- 
 print("Loading dataset...")
 t0 = time()
 data, _ = fetch_20newsgroups(
     shuffle=True,
     random_state=1,
+    # The posts are stripped of headers, footers and quoted replies
     remove=("headers", "footers", "quotes"),
     return_X_y=True,
 )
 data_samples = data[:n_samples]
 print("done in %0.3fs." % (time() - t0))
 
-# Use tf-idf features for NMF.
-print("Extracting tf-idf features for NMF...")
+
+
+# Using TF-IDF features for NMF :-
+# TF -> Term Frequncy: Measure of importance in a particular document
+# IDF -> Inverse Document Frequency: Measure of importance spread across multiple documents
+# TF-IDF = TF * IDF
+# Refer to https://www.analyticsvidhya.com/blog/2021/11/how-sklearns-tfidfvectorizer-calculates-tf-idf-values/
+print("Extracting TF-IDF features for NMF...")
 tfidf_vectorizer = TfidfVectorizer(
-    max_df=0.95, min_df=2, max_features=n_features, stop_words="english"
+    max_df=0.95, # Words shouldn't apprear in more than 95% of the documents
+    min_df=2, # Words should appear in at least 2 documents
+    max_features=n_features, 
+    stop_words="english" # Stripped of common English words
 )
 t0 = time()
 tfidf = tfidf_vectorizer.fit_transform(data_samples)
 print("done in %0.3fs." % (time() - t0))
 
-# Use tf (raw term count) features for LDA.
-print("Extracting tf features for LDA...")
-tf_vectorizer = CountVectorizer(
-    max_df=0.95, min_df=2, max_features=n_features, stop_words="english"
-)
-t0 = time()
-tf = tf_vectorizer.fit_transform(data_samples)
-print("done in %0.3fs." % (time() - t0))
-print()
 
-# Fit the NMF model
+
+# Fit the NMF model (With L2-norm) :-
 print(
     "Fitting the NMF model (Frobenius norm) with tf-idf features, "
     "n_samples=%d and n_features=%d..." % (n_samples, n_features)
@@ -114,9 +113,10 @@ plot_top_words(
     nmf, tfidf_feature_names, n_top_words, "Topics in NMF model (Frobenius norm)"
 )
 
-# Fit the NMF model
+
+
+# Fit the NMF model (With KL divergence) :-
 print(
-    "\n" * 2,
     "Fitting the NMF model (generalized Kullback-Leibler "
     "divergence) with tf-idf features, n_samples=%d and n_features=%d..."
     % (n_samples, n_features),
@@ -143,9 +143,10 @@ plot_top_words(
     "Topics in NMF model (generalized Kullback-Leibler divergence)",
 )
 
-# Fit the MiniBatchNMF model
+
+
+# Fitting the MiniBatchNMF model (With L2-norm) :-
 print(
-    "\n" * 2,
     "Fitting the MiniBatchNMF model (Frobenius norm) with tf-idf "
     "features, n_samples=%d and n_features=%d, batch_size=%d..."
     % (n_samples, n_features, batch_size),
@@ -172,9 +173,10 @@ plot_top_words(
     "Topics in MiniBatchNMF model (Frobenius norm)",
 )
 
-# Fit the MiniBatchNMF model
+
+
+# Fitting the MiniBatchNMF model (With KL divergence) :-
 print(
-    "\n" * 2,
     "Fitting the MiniBatchNMF model (generalized Kullback-Leibler "
     "divergence) with tf-idf features, n_samples=%d and n_features=%d, "
     "batch_size=%d..." % (n_samples, n_features, batch_size),
@@ -200,21 +202,3 @@ plot_top_words(
     "Topics in MiniBatchNMF model (generalized Kullback-Leibler divergence)",
 )
 
-print(
-    "\n" * 2,
-    "Fitting LDA models with tf features, n_samples=%d and n_features=%d..."
-    % (n_samples, n_features),
-)
-lda = LatentDirichletAllocation(
-    n_components=n_components,
-    max_iter=5,
-    learning_method="online",
-    learning_offset=50.0,
-    random_state=0,
-)
-t0 = time()
-lda.fit(tf)
-print("done in %0.3fs." % (time() - t0))
-
-tf_feature_names = tf_vectorizer.get_feature_names_out()
-plot_top_words(lda, tf_feature_names, n_top_words, "Topics in LDA model")
