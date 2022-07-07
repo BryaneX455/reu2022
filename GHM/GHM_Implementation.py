@@ -12,8 +12,8 @@ import numpy as np
 import pandas   as pd
 import seaborn as sb
 
-""" Parameter: Graph G, Phase State S, Iteration Number ItNum """
-def GHM(G,S,ItNum):
+""" Parameter: Graph G, Phase State S, Period k,Iteration Number ItNum """
+def GHM(G,S,k,ItNum):
     St = S
     SN = S
     for i in range(ItNum):
@@ -40,19 +40,21 @@ def GHM(G,S,ItNum):
             elif SN[j] == 0 and Onein:
                 SN[j] = 1
             else:
-                SN[j] = SN[j] + 1
+                SN[j] = (SN[j] + 1)% k
             print(SN[j])
     
     return St     
    
         
         
-
-edgelist = [['1','2'],['2','3'],['3','4'],['1','3'],['1','5'],['1','6'],['1','7'],['2','5'],['3','6'],\
+"""Non-Synchronizing example"""
+edgelist = [['1','2'],['2','3'],['3','4'],['1','3'],['1','5'],['1','6'],['1','7'],['2','4'],['2','5'],['3','6'],\
             ['3','4'],['3','5'],['3','6'],['4','5'],['4','6'],['4','7'],['5','6'],['5','7']]
 G1 = NNT()
 G1.add_edges(edgelist)
 
-State = GHM(G1,[0,2,1,3,2,1,2],10)
+State = GHM(G1,[0,2,1,3,2,1,2],5,10)
 G1map = pd.DataFrame(State)
 sb.heatmap(G1map)
+
+"""Collapsing Example"""
