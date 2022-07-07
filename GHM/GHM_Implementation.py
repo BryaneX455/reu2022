@@ -9,12 +9,10 @@ Created on Wed Jul  6 20:55:03 2022
 
 from NNetwork.NNetwork import NNetwork as NNT
 import numpy as np
-import pandas as pd
-import networkx as nx
-import random
+import pandas   as pd
+import seaborn as sb
 
 """ Parameter: Graph G, Phase State S, Iteration Number ItNum """
-
 def GHM(G,S,ItNum):
     St = S
     SN = S
@@ -24,18 +22,29 @@ def GHM(G,S,ItNum):
             St = np.vstack((St,SN))
         for j in range(G.number_nodes):
             Onein = False
-            for k in range(len(G.neighbors(G.vertices(j)))):
-                if 1 in S[k in G.neighbors(G.vertices(j))]:
-                    Onein = True
-            if SN[j] == 0 & (not Onein):
+            NeighbNum = len(G.neighbors(G.vertices[j]))
+            NeighbSet = G.neighbors(G.vertices[j])
+            NeighbList = list(NeighbSet)
+            print(NeighbNum)
+            print(NeighbList)
+            NeighbState = np.zeros(NeighbNum)
+            for k in range(NeighbNum):
+                NeighbState[k] = S[int(NeighbList[k])-1]  
+            print(NeighbState)    
+            print(SN)
+            if 1 in NeighbState:
+                Onein = True
+            print(Onein)
+            if SN[j] == 0 and (not Onein):
                 SN[j] = 0
-            elif SN[j] == 0 & Onein:
+            elif SN[j] == 0 and Onein:
                 SN[j] = 1
             else:
-                Sn[j] = Sn[j] + 1
+                SN[j] = SN[j] + 1
+            print(SN[j])
+    
     return St     
-     
-        
+   
         
         
 
@@ -43,6 +52,7 @@ edgelist = [['1','2'],['2','3'],['3','4'],['1','3'],['1','5'],['1','6'],['1','7'
             ['3','4'],['3','5'],['3','6'],['4','5'],['4','6'],['4','7'],['5','6'],['5','7']]
 G1 = NNT()
 G1.add_edges(edgelist)
-print(G1.vertices)
-print(G1.neighbors('2'))
-State = GHM(G1,[0,2,1,2,3,1,4],10)
+
+State = GHM(G1,[0,2,1,3,2,1,2],10)
+G1map = pd.DataFrame(State)
+sb.heatmap(G1map)
