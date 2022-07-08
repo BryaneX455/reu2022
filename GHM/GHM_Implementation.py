@@ -13,7 +13,7 @@ import pandas   as pd
 import seaborn as sb
 
 """ Parameter: Graph G, Phase State S, Period k,Iteration Number ItNum """
-def GHM(G,S,k,ItNum):
+def GHM(G,S,kap,ItNum):
     St = S
     SN = S
     for i in range(ItNum):
@@ -25,36 +25,40 @@ def GHM(G,S,k,ItNum):
             NeighbNum = len(G.neighbors(G.vertices[j]))
             NeighbSet = G.neighbors(G.vertices[j])
             NeighbList = list(NeighbSet)
-            print(NeighbNum)
-            print(NeighbList)
             NeighbState = np.zeros(NeighbNum)
             for k in range(NeighbNum):
                 NeighbState[k] = S[int(NeighbList[k])-1]  
             print(NeighbState)    
             print(SN)
+            print(S)
             if 1 in NeighbState:
                 Onein = True
             print(Onein)
             if SN[j] == 0 and (not Onein):
                 SN[j] = 0
             elif SN[j] == 0 and Onein:
-                SN[j] = 1
+                SN[j] = 1 % kap
             else:
-                SN[j] = (SN[j] + 1)% k
-            print(SN[j])
+                if (SN[j] + 1) % kap == 0:
+                    SN[j]=0
+                else:       
+                    SN[j] = (SN[j] + 1) % kap
+            print(SN)
+            print(St)
+            print('\n')
     
     return St     
    
         
         
-"""Non-Synchronizing example"""
-edgelist = [['1','2'],['2','3'],['3','4'],['1','3'],['1','5'],['1','6'],['1','7'],['2','4'],['2','5'],['3','6'],\
-            ['3','4'],['3','5'],['3','6'],['4','5'],['4','6'],['4','7'],['5','6'],['5','7']]
+"""Synchronizing example"""
+edgelist = [['1','2'],['2','3'],['3','4'],['1','3'],['1','5'],['1','6'],['1','7'],['2','8'],['2','9'],['1','9'],['2','4'],['2','5'],['3','6'],\
+            ['3','4'],['3','5'],['3','6'],['3','8'],['3','9'],['4','5'],['4','6'],['4','7'],['4','9'],['5','6'],['5','7'],['6','8']]
 G1 = NNT()
 G1.add_edges(edgelist)
 
-State = GHM(G1,[0,2,1,3,2,1,2],5,10)
+State = GHM(G1,[0,2,1,3,2,1,2,0,3],7,7)
 G1map = pd.DataFrame(State)
 sb.heatmap(G1map)
 
-"""Collapsing Example"""
+
