@@ -11,6 +11,8 @@ from NNetwork.NNetwork import NNetwork as NNT
 import numpy as np
 import pandas   as pd
 import seaborn as sb
+import networkx as nx
+import matplotlib.pyplot as plt
 
 """ Parameter: Graph G, Phase State S, Period k,Iteration Number ItNum """
 def GHM(G,S,kap,ItNum):
@@ -56,9 +58,14 @@ edgelist = [['1','2'],['2','3'],['3','4'],['1','3'],['1','5'],['1','6'],['1','7'
             ['3','4'],['3','5'],['3','6'],['3','8'],['3','9'],['4','5'],['4','6'],['4','7'],['4','9'],['5','6'],['5','7'],['6','8']]
 G1 = NNT()
 G1.add_edges(edgelist)
+G1G = nx.Graph()
+G1G.add_edges_from(edgelist)
+plt.figure(1)
+nx.draw(G1G, with_labels=True, font_weight='bold')
 
 State = GHM(G1,[0,2,1,3,2,1,2,0,3],7,7)
 G1map = pd.DataFrame(State)
+plt.figure(2)
 sb.heatmap(G1map)
 
 
