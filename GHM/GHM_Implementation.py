@@ -177,16 +177,13 @@ def GHMGridToArrRand(G,S,kap,ItNum):
 RandWin = 0
 NormalWin = 0
 TransRandSuccessNum = 0
+TieNum = 0
 for a in range(5):
    for i in range(10):  
-       a = 15
-       b = 10
-       if a>=b:
-           Grand2DArr = nx.grid_2d_graph(b,a)
-           s = np.random.randint(7, size=1*(b*a))
-       if a<b:
-           Grand2DArr = nx.grid_2d_graph(a,b)
-           s = np.random.randint(7, size=1*(a*b))
+       a = 10
+       b = 12
+       Grand2DArr = nx.grid_2d_graph(a,b) # When the b is larger than a, there is an index bug!
+       s = np.random.randint(7, size=1*(a*b))
        plt.figure(3)
        MapNorm, StNorm = GHMGridToArr(Grand2DArr,s,7,30)
        plt.figure(4)
@@ -204,5 +201,9 @@ for a in range(5):
    if RandWin > NormalWin:
        TransRandSuccessNum += 1
        print('Transition Rule Success')
+   elif RandWin == NormalWin:
+       TieNum += 1
+       print('Tie')
 
 print(TransRandSuccessNum)
+print(TieNum)
