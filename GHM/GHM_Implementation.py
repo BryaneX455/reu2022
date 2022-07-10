@@ -88,14 +88,20 @@ def GHMGridToArr(G,S,kap,ItNum):
             St = np.vstack((St,SN))
         for j in range(NodeNum):
             Onein = False
-            NeighbNum = len(list(G.neighbors(list(G.nodes)[j])))
-            NeighbSet = G.neighbors(list(G.nodes)[j])
-            NeighbList = list(NeighbSet)
-            NeighbState = np.zeros(NeighbNum)
-            for k in range(NeighbNum):
-                NeighbState[k] = S[int(NeighbList[k])-1]  
+            NeighbNum2D = len(list(G.neighbors(list(G.nodes)[j])))
+            NeighbSet2D = G.neighbors(list(G.nodes)[j])
+            NeighbList2D = list(NeighbSet2D)
+            print(NeighbList2D)
+            NeighbPos = list(np.zeros(len(NeighbList2D)))
+            for k in range(len(NeighbList2D)):
+                NeighbPos[k] = NeighbList2D[k][0]*ColNum+NeighbList2D[k][1]
+            print(NeighbPos)
+            NeighbState2D = np.zeros(NeighbNum2D)
+            
+            for k in range(NeighbNum2D):
+                NeighbState2D[k] = S[int(NeighbPos[k])]  
 
-            if 1 in NeighbState:
+            if 1 in NeighbState2D:
                 Onein = True
             if S[j] == 0 and (not Onein):
                 SN[j] = 0
@@ -118,7 +124,7 @@ Grand2DArr = nx.grid_2d_graph(10, 10)
 print(len(list(Grand2DArr.nodes)[0]))
 print(Grand2DArr.number_of_nodes())
 print(Grand2DArr.size()) 
-s = np.random.randint(7, size=10*10)
+s = np.random.randint(7, size=1*100)
 
 GHMGridToArr(Grand2DArr,s,7,10)
 
