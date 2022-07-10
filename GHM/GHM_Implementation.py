@@ -182,7 +182,7 @@ for a in range(5):
    for i in range(10):  
        a = 10
        b = 12
-       Grand2DArr = nx.grid_2d_graph(a,b) # When the b is larger than a, there is an index bug!
+       Grand2DArr = nx.grid_2d_graph(a,b) # When the a is larger than b, there is an index bug!
        s = np.random.randint(7, size=1*(a*b))
        plt.figure(3)
        MapNorm, StNorm = GHMGridToArr(Grand2DArr,s,7,30)
