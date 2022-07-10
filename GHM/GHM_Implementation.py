@@ -42,6 +42,7 @@ def GHMArr(G,S,kap,ItNum):
                 SN[j] = 1 % kap
             else:
                 if (S[j] + 1) % kap == 0:
+                    
                     SN[j]=0
                 else:       
                     SN[j] = (SN[j] + 1) % kap
@@ -65,7 +66,59 @@ s = np.random.randint(7,size = 1*9)
 GHMArr(G1, s, 12, 15);
 
 
+def GHMGridToArr(G,S,kap,ItNum):
+    GArr = list(np.zeros(G.number_of_nodes()))
+    RowNum = 0
+    for i in range(G.number_of_nodes()):
+        if list(Grand2DArr.nodes)[i][0] == 0:
+            RowNum += 1
+    ColNum = int(G.number_of_nodes()/RowNum)
+    for i in range(RowNum):
+        for j in range(ColNum):
+            GArr[int(i)*ColNum + int(j)] = int(i)*ColNum + int(j)
+    print(GArr)
+    St = S
+    SN = np.zeros(G.number_of_nodes())
+    NodeNum = G.number_of_nodes()
+    for i in range(len(S)):
+        SN[i] = S[i]
+    for i in range(ItNum):
+        if i!=0:
+            S = SN
+            St = np.vstack((St,SN))
+        for j in range(NodeNum):
+            Onein = False
+            NeighbNum = len(list(G.neighbors(list(G.nodes)[j])))
+            NeighbSet = G.neighbors(list(G.nodes)[j])
+            NeighbList = list(NeighbSet)
+            NeighbState = np.zeros(NeighbNum)
+            for k in range(NeighbNum):
+                NeighbState[k] = S[int(NeighbList[k])-1]  
+
+            if 1 in NeighbState:
+                Onein = True
+            if S[j] == 0 and (not Onein):
+                SN[j] = 0
+            elif S[j] == 0 and Onein:
+                SN[j] = 1 % kap
+            else:
+                if (S[j] + 1) % kap == 0:
+                    
+                    SN[j]=0
+                else:       
+                    SN[j] = (SN[j] + 1) % kap
+    
+    PhaseState = pd.DataFrame(St)
+    
+
+    return sb.heatmap(PhaseState, cbar=False, cmap='viridis')   
+    
 Grand2DArr = nx.grid_2d_graph(10, 10)
-s = np.random.randint(4, size=10*10)
-GHMArr(Grand2DArr, s, 4, 100);
+
+print(len(list(Grand2DArr.nodes)[0]))
+print(Grand2DArr.number_of_nodes())
+print(Grand2DArr.size()) 
+s = np.random.randint(7, size=10*10)
+
+GHMGridToArr(Grand2DArr,s,7,10)
 
