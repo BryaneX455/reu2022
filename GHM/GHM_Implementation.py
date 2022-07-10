@@ -7,12 +7,13 @@ Created on Wed Jul  6 20:55:03 2022
 
 
 
-from NNetwork.NNetwork import NNetwork as NNT
+
 import numpy as np
 import pandas   as pd
 import seaborn as sb
 import networkx as nx
 import matplotlib.pyplot as plt
+import random
 
 """ Parameter: Graph G, Phase State S, Period k,Iteration Number ItNum """
 def GHMArr(G,S,kap,ItNum):
@@ -70,13 +71,12 @@ def GHMGridToArr(G,S,kap,ItNum):
     GArr = list(np.zeros(G.number_of_nodes()))
     RowNum = 0
     for i in range(G.number_of_nodes()):
-        if list(Grand2DArr.nodes)[i][0] == 0:
+        if list(G.nodes)[i][0] == 0:
             RowNum += 1
     ColNum = int(G.number_of_nodes()/RowNum)
     for i in range(RowNum):
         for j in range(ColNum):
             GArr[int(i)*ColNum + int(j)] = int(i)*ColNum + int(j)
-    print(GArr)
     St = S
     SN = np.zeros(G.number_of_nodes())
     NodeNum = G.number_of_nodes()
@@ -91,13 +91,10 @@ def GHMGridToArr(G,S,kap,ItNum):
             NeighbNum2D = len(list(G.neighbors(list(G.nodes)[j])))
             NeighbSet2D = G.neighbors(list(G.nodes)[j])
             NeighbList2D = list(NeighbSet2D)
-            print(NeighbList2D)
             NeighbPos = list(np.zeros(len(NeighbList2D)))
             for k in range(len(NeighbList2D)):
                 NeighbPos[k] = NeighbList2D[k][0]*ColNum+NeighbList2D[k][1]
-            print(NeighbPos)
             NeighbState2D = np.zeros(NeighbNum2D)
-            
             for k in range(NeighbNum2D):
                 NeighbState2D[k] = S[int(NeighbPos[k])]  
 
@@ -117,14 +114,95 @@ def GHMGridToArr(G,S,kap,ItNum):
     PhaseState = pd.DataFrame(St)
     
 
-    return sb.heatmap(PhaseState, cbar=False, cmap='viridis')   
+    return sb.heatmap(PhaseState, cbar=False, cmap='viridis'), St  
+
+def GHMGridToArrRand(G,S,kap,ItNum):
+    GArr = list(np.zeros(G.number_of_nodes()))
+    RowNum = 0
+    for i in range(G.number_of_nodes()):
+        if list(G.nodes)[i][0] == 0:
+            RowNum += 1
+    ColNum = int(G.number_of_nodes()/RowNum)
+    for i in range(RowNum):
+        for j in range(ColNum):
+            GArr[int(i)*ColNum + int(j)] = int(i)*ColNum + int(j)
+    St = S
+    SN = np.zeros(G.number_of_nodes())
+    NodeNum = G.number_of_nodes()
+    for i in range(len(S)):
+        SN[i] = S[i]
+    for i in range(ItNum):
+        if i!=0:
+            S = SN
+            St = np.vstack((St,SN))
+        for j in range(NodeNum):
+            Onein = False
+            NeighbNum2D = len(list(G.neighbors(list(G.nodes)[j])))
+            NeighbSet2D = G.neighbors(list(G.nodes)[j])
+            NeighbList2D = list(NeighbSet2D)
+            NeighbPos = list(np.zeros(len(NeighbList2D)))
+            for k in range(len(NeighbList2D)):
+                NeighbPos[k] = NeighbList2D[k][0]*ColNum+NeighbList2D[k][1]
+            NeighbState2D = np.zeros(NeighbNum2D)
+            
+            for k in range(NeighbNum2D):
+                NeighbState2D[k] = S[int(NeighbPos[k])]  
+
+            if 1 in NeighbState2D:
+                Onein = True
+            if S[j] == 0 and (not Onein):
+                l = random.uniform(0, 1)
+                if l <= 0.7:
+                    SN[j] = 0
+                else:
+                    SN[j] = SN[j]
+            elif S[j] == 0 and Onein:
+                l = random.uniform(0, 1)
+                if l <= 0.7:
+                    SN[j] = 1 % kap
+                else:
+                    SN[j] = SN[j]
+            else:
+                if (S[j] + 1) % kap == 0:
+                    
+                    SN[j]=0
+                else:       
+                    SN[j] = (SN[j] + 1) % kap
     
-Grand2DArr = nx.grid_2d_graph(10, 10)
+    PhaseState = pd.DataFrame(St)
+    
 
-print(len(list(Grand2DArr.nodes)[0]))
-print(Grand2DArr.number_of_nodes())
-print(Grand2DArr.size()) 
-s = np.random.randint(7, size=1*100)
+    return sb.heatmap(PhaseState, cbar=False, cmap='viridis'), St
 
-GHMGridToArr(Grand2DArr,s,7,10)
+RandWin = 0
+NormalWin = 0
+TransRandSuccessNum = 0
+for a in range(5):
+   for i in range(10):  
+       a = 15
+       b = 10
+       if a>=b:
+           Grand2DArr = nx.grid_2d_graph(b,a)
+           s = np.random.randint(7, size=1*(b*a))
+       if a<b:
+           Grand2DArr = nx.grid_2d_graph(a,b)
+           s = np.random.randint(7, size=1*(a*b))
+       plt.figure(3)
+       MapNorm, StNorm = GHMGridToArr(Grand2DArr,s,7,30)
+       plt.figure(4)
+       MapRand, StRand = GHMGridToArrRand(Grand2DArr,s,7,30)
+       NormSync = False
+       RandSync = False
+       if all([ Sn == 0 for Sn in StNorm[29] ]):
+           NormSync = True
+       if all([ Sn == 0 for Sn in StRand[29] ]):
+           RandSync = True
+       if (not NormSync) and RandSync:
+           RandWin += 1
+       elif NormSync and (not RandSync):
+           NormSync += 1        
+   if RandWin > NormalWin:
+       TransRandSuccessNum += 1
+       print('Transition Rule Success')
 
+print(TransRandSuccessNum)
