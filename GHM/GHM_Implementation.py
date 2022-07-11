@@ -69,11 +69,11 @@ GHMArr(G1, s, 12, 15);
 
 def GHMGridToArr(G,S,kap,ItNum):
     GArr = list(np.zeros(G.number_of_nodes()))
-    RowNum = 0
+    ColNum = 0
     for i in range(G.number_of_nodes()):
         if list(G.nodes)[i][0] == 0:
-            RowNum += 1
-    ColNum = int(G.number_of_nodes()/RowNum)
+            ColNum += 1
+    RowNum = int(G.number_of_nodes()/ColNum)
     for i in range(RowNum):
         for j in range(ColNum):
             GArr[int(i)*ColNum + int(j)] = int(i)*ColNum + int(j)
@@ -118,11 +118,11 @@ def GHMGridToArr(G,S,kap,ItNum):
 
 def GHMGridToArrRand(G,S,kap,ItNum):
     GArr = list(np.zeros(G.number_of_nodes()))
-    RowNum = 0
+    ColNum = 0
     for i in range(G.number_of_nodes()):
         if list(G.nodes)[i][0] == 0:
-            RowNum += 1
-    ColNum = int(G.number_of_nodes()/RowNum)
+            ColNum += 1
+    RowNum = int(G.number_of_nodes()/ColNum)
     for i in range(RowNum):
         for j in range(ColNum):
             GArr[int(i)*ColNum + int(j)] = int(i)*ColNum + int(j)
@@ -180,9 +180,9 @@ TransRandSuccessNum = 0
 TieNum = 0
 for a in range(5):
    for i in range(10):  
-       a = 10
-       b = 12
-       Grand2DArr = nx.grid_2d_graph(a,b) # When the a is larger than b, there is an index bug!
+       a = 15
+       b = 14
+       Grand2DArr = nx.grid_2d_graph(a,b) # When the b is larger than a, there is an index bug!
        s = np.random.randint(7, size=1*(a*b))
        plt.figure(3)
        MapNorm, StNorm = GHMGridToArr(Grand2DArr,s,7,30)
