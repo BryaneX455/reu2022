@@ -45,7 +45,7 @@ def simulate_CCA(G, init_state, kappa, threshold, iters):
 
             for k in range(G.number_of_nodes()):
                 # appliying von Neumann neighborhood (with edge directly conencted)
-                if (curr_state[k] == (curr_state[j]+1) % kappa) and (list(G.nodes)[k] in list(G.adj[list(G.nodes)[i]])):
+                if (curr_state[k] == (curr_state[j]+1) % kappa) and (list(G.nodes)[k] in list(G.adj[list(G.nodes)[j]])):
                     count += 1
                     if count >= threshold:
                         flag = True
