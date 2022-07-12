@@ -37,14 +37,16 @@ class ALS:
             W (2D-ndarray): The final value of the dictionary matrix.
             H (2D-ndarray): The final value of the encoding matrix.
         """
-        for i in range(self.iter):
-            self.H_i = np.linalg.lstsq(self.W_i, self.X, rcond=None)[0]
-            if self.non_negativity_H:
-                self.H_i[self.H_i < 0] = 0
-
-            self.W_i = np.transpose(np.linalg.lstsq(np.transpose(self.H_i), np.transpose(self.X), rcond=None)[0])
-            if self.non_negativity_W:
-                self.W_i[self.W_i < 0] = 0
-
         W, H = self.W_i, self.H_i
+        
+        for i in range(self.iter):
+            H = np.linalg.lstsq(W, self.X, rcond=None)[0]
+            if self.non_negativity_H:
+                H[H < 0] = 0
+
+            W = np.transpose(np.linalg.lstsq(np.transpose(H), np.transpose(self.X), rcond=None)[0])
+            if self.non_negativity_W:
+                W[W < 0] = 0
+                
         return W, H
+            
