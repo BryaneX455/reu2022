@@ -150,8 +150,8 @@ def GHMGridToArr(G,S,kap,ItNum):
 
     return sb.heatmap(PhaseState, cbar=False, cmap='viridis'), St 
 
-a = 60
-b = 60
+a = 75
+b = 75
 kap = 5
 ItNum = 45
 Grand2D = nx.grid_2d_graph(a,b) 
