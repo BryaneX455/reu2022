@@ -152,13 +152,13 @@ def GHMGridToArrRand(G,S,kap,ItNum):
                 Onein = True
             if S[j] == 0 and (not Onein):
                 l = random.uniform(0, 1)
-                if l <= 0.7:
+                if l <= 0.5:
                     SN[j] = 0
                 else:
                     SN[j] = SN[j]
             elif S[j] == 0 and Onein:
                 l = random.uniform(0, 1)
-                if l <= 0.7:
+                if l <= 0.5:
                     SN[j] = 1 % kap
                 else:
                     SN[j] = SN[j]
@@ -180,19 +180,21 @@ TransRandSuccessNum = 0
 TieNum = 0
 for a in range(5):
    for i in range(10):  
-       a = 15
-       b = 14
+       a = 20
+       b = 25
+       thres = 5
+       ItNum = 45
        Grand2DArr = nx.grid_2d_graph(a,b) # When the b is larger than a, there is an index bug!
-       s = np.random.randint(7, size=1*(a*b))
+       s = np.random.randint(thres, size=1*(a*b))
        plt.figure(3)
-       MapNorm, StNorm = GHMGridToArr(Grand2DArr,s,7,45)
+       MapNorm, StNorm = GHMGridToArr(Grand2DArr,s,thres,ItNum)
        plt.figure(4)
-       MapRand, StRand = GHMGridToArrRand(Grand2DArr,s,7,45)
+       MapRand, StRand = GHMGridToArrRand(Grand2DArr,s,thres,ItNum)
        NormSync = False
        RandSync = False
-       if all([ Sn == 0 for Sn in StNorm[29] ]):
+       if all([ Sn == 0 for Sn in StNorm[ItNum-1] ]):
            NormSync = True
-       if all([ Sn == 0 for Sn in StRand[29] ]):
+       if all([ Sn == 0 for Sn in StRand[ItNum-1] ]):
            RandSync = True
        if (not NormSync) and RandSync:
            RandWin += 1
