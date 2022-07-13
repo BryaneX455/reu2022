@@ -1,4 +1,6 @@
 import numpy as np
+import scipy
+from scipy import optimize
 
 class ALS:
     def __init__(self, X, rank, W_i=None, H_i=None, iter=128, non_negativity_W=False, non_negativity_H=False):
@@ -38,15 +40,34 @@ class ALS:
             H (2D-ndarray): The final value of the encoding matrix.
         """
         W, H = self.W_i, self.H_i
-        
-        for i in range(self.iter):
-            H = np.linalg.lstsq(W, self.X, rcond=None)[0]
-            if self.non_negativity_H:
-                H[H < 0] = 0
 
-            W = np.transpose(np.linalg.lstsq(np.transpose(H), np.transpose(self.X), rcond=None)[0])
-            if self.non_negativity_W:
-                W[W < 0] = 0
+#         if self.non_negativity_H and not self.non_negativity_W:
+#             for i in range(self.iter):
+#                 H = optimize.nnls(W, self.X)[0]
+#                 W = np.transpose(np.linalg.lstsq(np.transpose(H), np.transpose(self.X), rcond=None)[0])
+            
+#         elif not self.non_negativity_H and self.non_negativity_W:
+#             for i in range(self.iter):
+#                 H = np.linalg.lstsq(W, self.X, rcond=None)[0]
+#                 W = np.transpose(optimize.nnls(np.transpose(H), np.transpose(self.X))[0])
+            
+#         elif self.non_negativity_H and self.non_negativity_W:
+#             for i in range(self.iter):
+#                 H = optimize.nnls(W, self.X)[0]
+#                 W = np.transpose(optimize.nnls(np.transpose(H), np.transpose(self.X))[0])
+
+#         else:
+#             for i in range(self.iter):
+#                 H = np.linalg.lstsq(W, self.X, rcond=None)[0]
+#                 W = np.transpose(np.linalg.lstsq(np.transpose(H), np.transpose(self.X), rcond=None)[0])
+            
+        H = np.linalg.lstsq(W, self.X, rcond=None)[0]
+        if self.non_negativity_H:
+            H[H < 0] = 0
+
+        W = np.transpose(np.linalg.lstsq(np.transpose(H), np.transpose(self.X), rcond=None)[0])
+        if self.non_negativity_W:
+            W[W < 0] = 0
                 
         return W, H
             
