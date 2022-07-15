@@ -46,9 +46,10 @@ def animate_GHM2D(G,S,Kap,ItNum):
             NeighbSet2D = G.neighbors(list(G.nodes)[j])
             NeighbList2D = list(NeighbSet2D)
             NeighbNum2D = len(NeighbList2D)
-            NeighbInd = random.sample(range(NeighbNum2D),1)
-            TheNeighbs = [NeighbList2D[NeighbInd[y]] for y in range(2)]
-            NeighbState = [S[TheNeighbs[x][0]][TheNeighbs[x][1]] for x in range(2)]
+            ProsNeighbNum = 1
+            NeighbInd = random.sample(range(NeighbNum2D),ProsNeighbNum)
+            TheNeighbs = [NeighbList2D[NeighbInd[y]] for y in range(ProsNeighbNum)]
+            NeighbState = [S[TheNeighbs[x][0]][TheNeighbs[x][1]] for x in range(ProsNeighbNum)]
 
             if 1 in NeighbState:
                 Onein = True
