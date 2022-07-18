@@ -19,6 +19,18 @@ from PIL import GifImagePlugin
 
 
 def animate_GHM2D(G,S,Kap,ItNum):
+    """Implements 2D Greenberg Hasting Model Animation
+
+    Args:
+        G (NetworkX Graph): Input graph to the model
+        S (array): Current state
+        Kap (int): Kap-color GHM
+        ItNum (int): Number of iterations
+
+    Returns:
+        2D heatmap animation for the GHM
+    """
+    
     (m,n) = S.shape  
     fig = plt.figure()
     def init():
@@ -58,11 +70,6 @@ def animate_GHM2D(G,S,Kap,ItNum):
             elif S[int((j-j%n)/n)][int(j%n)] == 0 and Onein:
                 SN[int((j-j%n)/n)][int(j%n)] = 1
             else:
-                """
-                if (S[int((j-j%n)/n)][int(j%n)] + 1) % Kap == 0:                   
-                    SN[int((j-j%n)/n)][int(j%n)]=0
-                else:
-                    """
                 SN[int((j-j%n)/n)][int(j%n)] = (SN[int((j-j%n)/n)][int(j%n)] + 1) % Kap
     
     
@@ -81,6 +88,18 @@ def animate_GHM2D(G,S,Kap,ItNum):
     plt.show()
     
 def GHMGridToArr(G,S,kap,ItNum):
+    """Implements Vectorized 2D Grennberg Hasting Model 
+
+    Args:
+        G (NetworkX Graph): Input graph to the model
+        S (array): Current state
+        Kap (int): Kap-color GHM
+        ItNum (int): Number of iterations
+
+    Returns:
+        Generates heatmap of time evolution of vectorized 2D GHM model
+    """
+    
     GArr = list(np.zeros(G.number_of_nodes()))
     ColNum = 0
     for i in range(G.number_of_nodes()):
@@ -130,8 +149,8 @@ def GHMGridToArr(G,S,kap,ItNum):
 
     return sb.heatmap(PhaseState, cbar=False, cmap='viridis'), St 
 
-a = 100
-b = 100
+a = 5
+b = 5
 kap = 5
 ItNum = 45
 Grand2D = nx.grid_2d_graph(a,b) 

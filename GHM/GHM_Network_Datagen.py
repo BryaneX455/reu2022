@@ -12,6 +12,9 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import sys; sys.path.insert(1,'../')
 import sys; sys.path.insert(1, 'E:/college/year4.1/REU/reu2022-main/ML_for_FCA/') 
+from math import floor
+from tqdm import tqdm
+from firefly import *
 
 
 def animate_GHM2D(G,S,Kap,ItNum):
@@ -74,14 +77,12 @@ def animate_GHM2D(G,S,Kap,ItNum):
         for j in range(m):
             for k in range(n):                
                 PhaseStateList[i][j][k] = S[j][k]
+                
+        Sync = False
+        if not np.any(PhaseStateList[ItNum-1]):
+            Sync = True
                            
-    anim = animation.FuncAnimation(fig, animate, init_func=init, frames=ItNum, repeat = False)
-
-    FileName = 'GHM2DAnimation.gif'
-    pillowwriter = animation.PillowWriter(fps=1)
-    anim.save(FileName, writer=pillowwriter)
-    
-    plt.show()
+    return PhaseStateList, 
 
 def make_graphs(n=2, i=None, j=None):
     """Make a graph recursively, by either including, or skipping each edge.
@@ -181,3 +182,38 @@ print('Filtering...')
 gs = filter(gs, NV)
 print(f'Drawing {len(gs)} graphs...')
 plot_graphs(gs, figsize=14, dotsize=20)
+
+
+
+file = open('toy.csv', 'w+', newline ='')
+
+GHM_iter = 30
+with file:   
+    write = csv.writer(file)
+    for col in color_list:
+        for i in gs:
+            G = nx.Graph()
+            G.add_edges_from(i)
+
+            num_edges = G.number_of_edges()
+            #num_nodes = G.number_of_nodes()
+            min_degree = min(list(G.degree), key=lambda x:x[1])[1]
+            max_degree = max(list(G.degree), key=lambda x:x[1])[1]
+            diameter = nx.diameter(G)
+            quartile_1 = s.quantiles(col, n=4)[0]
+            quartile_2 = s.quantiles(col, n=4)[1]
+            quartile_3 = s.quantiles(col, n=4)[2]
+
+            sample = [num_edges, num_nodes, min_degree, max_degree, diameter, 
+                       quartile_1, quartile_2, quartile_3]
+            states, label = FCA(G, col, kappa, FCA_iter)
+            sample.append(label)
+            for j in range(5):
+                sample = sample+list(states[j])
+            
+            width = width_compute(states[FCA_iter-1],kappa)
+            concentration = False
+            if(width < floor(kappa/2)): #half circle concentration
+                concentration = True
+            sample.append(concentration)
+            write.writerow(sample)
