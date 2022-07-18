@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
+import seaborn as sns
 
 from .kuramoto import Kuramoto
 
@@ -34,4 +35,18 @@ def plot_phase_coherence(activity):
     ax.set_ylabel('Order parameter', fontsize=20)
     ax.set_xlabel('Time', fontsize=20)
     ax.set_ylim((-0.01, 1))
+    return ax
+
+def plot_heatmap(activity):
+    """
+    Plot the heatmap of colors showing phase for each iteration
+    
+    activity: 2D-np.ndarray
+        Activity time series, node vs. time; ie output of Kuramoto.run()
+    return:
+        matplotlib axis for further customization
+    """
+    _, ax = plt.subplots(figsize=(6, 4))
+    sns.heatmap(activity.T, cbar=False)
+    plt.title("Heatmap showing phases by iteration")
     return ax
