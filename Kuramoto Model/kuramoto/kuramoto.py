@@ -3,6 +3,8 @@ from scipy.integrate import odeint
 
 
 class Kuramoto:
+    
+    concentrated=False
 
     def __init__(self, coupling=1, dt=0.01, T=10, n_nodes=None, natfreqs=None, half_sync=False):
         '''
@@ -95,7 +97,12 @@ class Kuramoto:
         if angles_vec is None:
             angles_vec = self.init_angles()
 
-        return self.integrate(angles_vec, adj_mat)
+        sim = self.integrate(angles_vec, adj_mat)
+            
+        if (np.sin(sim.T)[-1].max()-np.sin(sim.T)[-1].min()) < 1:
+            Kuramoto.concentrated=True
+            
+        return sim
 
     @staticmethod
     def phase_coherence(angles_vec):
