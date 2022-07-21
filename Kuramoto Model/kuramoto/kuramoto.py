@@ -3,8 +3,6 @@ from scipy.integrate import odeint
 
 
 class Kuramoto:
-    
-    concentrated=False
 
     def __init__(self, coupling=1, dt=0.01, T=10, n_nodes=None, natfreqs=None, half_sync=False):
         '''
@@ -33,6 +31,9 @@ class Kuramoto:
         self.T = T
         self.coupling = coupling
         self.half_sync = half_sync
+        
+        if self.half_sync == False: self.concentrated=False
+        else: self.concentrated=True
 
         if natfreqs is not None:
             self.natfreqs = natfreqs
@@ -99,8 +100,8 @@ class Kuramoto:
 
         sim = self.integrate(angles_vec, adj_mat)
             
-        if (np.sin(sim.T)[-1].max()-np.sin(sim.T)[-1].min()) < 1:
-            Kuramoto.concentrated=True
+        if (np.sin(sim.T)[-1].max()-np.sin(sim.T)[-1].min()) < 1: self.concentrated=True
+        else: self.concentrated=False
             
         return sim
 
