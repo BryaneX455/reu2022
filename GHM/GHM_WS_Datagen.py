@@ -65,7 +65,16 @@ GHMItNum = 30
 
 
 def sample_WS(num_samples, NodeNum, knn, prob, kap, GHMItNum):
-    df = pd.DataFrame(columns=['kappa', '# Edges', '# Nodes', 'Min Degree', 'Max Degree', 'Diameter', 'Label'])
+    BaseName = "S" 
+    InitPhaseList = list(np.zeros(NodeNum))
+    for i in range(NodeNum):
+        InitPhaseList[i] = f'{BaseName}_{i}'
+    ColList = ['kappa', '# Edges', '# Nodes', 'Min Degree', 'Max Degree', 'Diameter']
+    ColList.extend(InitPhaseList)
+    ColList.extend(['label'])
+    print(ColList)
+    df = pd.DataFrame(columns=ColList)
+    
     SyncNum = 0
     NonSync = 0
     for i in range(num_samples):
@@ -86,7 +95,7 @@ def sample_WS(num_samples, NodeNum, knn, prob, kap, GHMItNum):
             diam = nx.diameter(G)
             
             # Applying GHM
-            adj_mat = nx.to_numpy_array(G)
+            # adj_mat = nx.to_numpy_array(G)
             
             state, label = GHM(G, s, kap, GHMItNum)
             if label:
@@ -96,15 +105,17 @@ def sample_WS(num_samples, NodeNum, knn, prob, kap, GHMItNum):
                 label = 0
                 NonSync += 1
             
+            SList = list(s)
+            SList.append(label);
             if max(SyncNum,NonSync) <= 800:
-                df.at[len(df.index)] = [kap, edges, nodes, dmin, dmax, diam, label]
+                df.at[len(df.index),:] = [kap, edges, nodes, dmin, dmax, diam]+SList
             elif min(SyncNum,NonSync) <= 800:
                 if min(SyncNum,NonSync) == SyncNum:
                     if label == 1:
-                        df.at[len(df.index)] = [kap, edges, nodes, dmin, dmax, diam, label]
+                        df.at[len(df.index),:] = [kap, edges, nodes, dmin, dmax, diam]+SList
                 elif min(SyncNum,NonSync) == NonSync:
                     if label == 0:
-                        df.at[len(df.index)] = [kap, edges, nodes, dmin, dmax, diam, label]
+                        df.at[len(df.index),:] = [kap, edges, nodes, dmin, dmax, diam]+SList
     
     return df, SyncNum
 

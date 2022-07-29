@@ -24,7 +24,7 @@ from imblearn.under_sampling import RandomUnderSampler
 
 WSDF = pd.read_csv('GHM.csv')
 X = np.array(WSDF[['kappa', '# Edges', '# Nodes', 'Min Degree', 'Max Degree', 'Diameter']])
-Y = np.array(WSDF['Label'])
+Y = np.array(WSDF['label'])
 print(Y)
 pass 
 
