@@ -20,7 +20,7 @@ import warnings
 warnings.filterwarnings("ignore")
 
 
-def gen_KM(nodes, r, num_samples, highvar=False, random_K=False, half_sync=False):
+def gen_KM(nodes, r, num_samples, edge_var="L", random_K=False, half_sync=False):
 
     df = pd.DataFrame()
     
@@ -31,9 +31,17 @@ def gen_KM(nodes, r, num_samples, highvar=False, random_K=False, half_sync=False
         
         nodes = nodes
 
-        if highvar: neighbors = int(random.uniform(1, 25))
-        else: neighbors = int(random.uniform(20, 25))
+        assert(edge_var in ["L", "H", "F"]), "The edge variance can either be \"L\" (Low), \"H\" (High), or \"F\" (Fixed)."
         
+        if edge_var=="L":
+            neighbors = int(random.uniform(15, 20))
+            
+        elif edge_var=="H":
+            neighbors = int(random.uniform(1, 20))
+            
+        else:
+            neighbors = 15
+            
         probability = random.uniform(0, 1)
         G = nx.newman_watts_strogatz_graph(nodes, neighbors, probability)
         
@@ -75,14 +83,22 @@ def gen_KM(nodes, r, num_samples, highvar=False, random_K=False, half_sync=False
     return df
 
 
-def gen_KM_nodynamics(nodes, num_samples, highvar=False, random_K=False, half_sync=False):
+def gen_KM_nodynamics(nodes, num_samples, edge_var="L", random_K=False, half_sync=False):
     df = pd.DataFrame(columns=['# Edges', '# Nodes', 'Min Degree', 'Max Degree', 'Diameter', 'Concentrated'])
     
     for i in range(num_samples):
         nodes = nodes
         
-        if highvar: neighbors = int(random.uniform(1, 25))
-        else: neighbors = int(random.uniform(20, 25))
+        assert(edge_var in ["L", "H", "F"]), "The edge variance can either be \"L\" (Low), \"H\" (High), or \"F\" (Fixed)."
+        
+        if edge_var=="L":
+            neighbors = int(random.uniform(15, 20))
+            
+        elif edge_var=="H":
+            neighbors = int(random.uniform(1, 20))
+            
+        else:
+            neighbors = 15
         
         probability = random.uniform(0, 1)
         G = nx.newman_watts_strogatz_graph(nodes, neighbors, probability)
@@ -154,10 +170,10 @@ def plot_gini_index(model, X_train):
 
     forest_importances = pd.Series(importances, index=feature_names)
     if len(forest_importances) > 100:
-        forest_importances = forest_importances[forest_importances > 0.002]
+        forest_importances = forest_importances.sort_values(ascending=False).head(10)
 
     fig, ax = plt.subplots()
-    forest_importances.plot.bar(yerr=std, ax=ax)
+    forest_importances.plot.bar(ax=ax)
     ax.set_title("Feature importances using Gini index")
     ax.set_ylabel("Mean decrease in impurity (Gini index)")
     fig.tight_layout()
