@@ -106,7 +106,7 @@ def sample_WS(num_samples, NodeNum, prob, knn, kap, GHMItNum):
             diam = nx.diameter(G)
             
             # Applying GHM
-            # adj_mat = nx.to_numpy_array(G)
+            AdjMatrix = nx.to_numpy_matrix(G, nodelist=sorted(G.nodes()))
             
             state, label = GHM(G, s, kap, GHMItNum)
             if label:
@@ -131,7 +131,7 @@ def sample_WS(num_samples, NodeNum, prob, knn, kap, GHMItNum):
                         df.at[len(df.index),:] = [kap, edges, nodes, dmin, dmax, diam]+SList
     
 
-    return df.transpose(), SyncNum
+    return df, SyncNum
 
 SampleNum = 500
 df,SyncNum =  sample_WS(SampleNum, NodeNum, prob, knn, kap, GHMItNum)
