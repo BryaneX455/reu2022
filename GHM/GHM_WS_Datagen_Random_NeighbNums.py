@@ -59,28 +59,23 @@ def GHM(G,S,kap,ItNum):
 
 NodeNum = 14
 kap = 5
-knn = 4
 prob = 0.65
 GHMItNum = 30
 
 
-def sample_WS(num_samples, NodeNum, prob, knn, kap, GHMItNum):
+def sample_WS(num_samples, NodeNum, prob, kap, GHMItNum):
     BaseName = "S" 
-    Edge_Base_Name = "E"
-    if knn%2 == 0:
-        Edge_Num = int(knn*NodeNum/2)
-    else:
-        Edge_Num = int((knn-1)*NodeNum/2)
     InitPhaseList = list(np.zeros(NodeNum))
-    EdgeList = list(np.zeros(Edge_Num))
-    for i in range(Edge_Num):
-        EdgeList[i] = f'{Edge_Base_Name}_{i}'
-
+    FirstIt = list(np.zeros(NodeNum))
+    SecondIt = list(np.zeros(NodeNum))
     for i in range(NodeNum):
         InitPhaseList[i] = f'{BaseName}_{i}_{1}'
+        FirstIt[i] = f'{BaseName}_{i}_{2}'
+        SecondIt[i] = f'{BaseName}_{i}_{3}'
     ColList = ['kappa', '# Edges', '# Nodes', 'Min Degree', 'Max Degree', 'Diameter']
     ColList.extend(InitPhaseList)
-    ColList.extend(EdgeList)
+    ColList.extend(FirstIt)
+    ColList.extend(SecondIt)
     ColList.extend(['label'])
     print(ColList)
     df = pd.DataFrame(columns=ColList)
@@ -88,12 +83,13 @@ def sample_WS(num_samples, NodeNum, prob, knn, kap, GHMItNum):
     SyncNum = 0
     NonSync = 0
     for i in range(num_samples):
+        knn = random.randint(4, 9)
         print(i)
         G = nx.watts_strogatz_graph(NodeNum, knn, prob)
         s = np.random.randint(5, size=1*NodeNum)
         if nx.is_connected(G):
             # Number of Edges and Nodes
-            # EdgeList = G.edges
+            EdgeList = G.edges
             edges = G.number_of_edges()
             nodes = G.number_of_nodes()
 
@@ -117,12 +113,12 @@ def sample_WS(num_samples, NodeNum, prob, knn, kap, GHMItNum):
                 NonSync += 1
             
             SList = list(s)
-            Edges = G.edges
-            SList.extend(Edges)
-            SList.append(label)
-            if max(SyncNum,NonSync) <= 100:
+            SList.extend(state[1])
+            SList.extend(state[2])
+            SList.append(label);
+            if max(SyncNum,NonSync) <= 1250:
                 df.at[len(df.index),:] = [kap, edges, nodes, dmin, dmax, diam]+SList
-            elif min(SyncNum,NonSync) <= 100:
+            elif min(SyncNum,NonSync) <= 1250:
                 if min(SyncNum,NonSync) == SyncNum:
                     if label == 1:
                         df.at[len(df.index),:] = [kap, edges, nodes, dmin, dmax, diam]+SList
@@ -130,12 +126,11 @@ def sample_WS(num_samples, NodeNum, prob, knn, kap, GHMItNum):
                     if label == 0:
                         df.at[len(df.index),:] = [kap, edges, nodes, dmin, dmax, diam]+SList
     
+    return df, SyncNum
 
-    return df.transpose(), SyncNum
-
-SampleNum = 500
-df,SyncNum =  sample_WS(SampleNum, NodeNum, prob, knn, kap, GHMItNum)
-df.to_csv('GHM_Dict_Data.csv')  
+SampleNum = 3000
+df,SyncNum =  sample_WS(SampleNum, NodeNum, prob, kap, GHMItNum)
+df.to_csv('GHM.csv')  
 print(SyncNum)
 
 
