@@ -80,7 +80,7 @@ def sample_WS(num_samples, NodeNum, prob, knn, kap, GHMItNum):
         InitPhaseList[i] = f'{BaseName}_{i}_{1}'
     ColList = ['kappa', '# Edges', '# Nodes', 'Min Degree', 'Max Degree', 'Diameter']
     ColList.extend(InitPhaseList)
-    ColList.extend(EdgeList)
+    # ColList.extend(EdgeList)
     ColList.extend(['label'])
     print(ColList)
     df = pd.DataFrame(columns=ColList)
@@ -117,12 +117,10 @@ def sample_WS(num_samples, NodeNum, prob, knn, kap, GHMItNum):
                 NonSync += 1
             
             SList = list(s)
-            Edges = G.edges
-            SList.extend(Edges)
             SList.append(label)
-            if max(SyncNum,NonSync) <= 100:
+            if max(SyncNum,NonSync) <= 1250:
                 df.at[len(df.index),:] = [kap, edges, nodes, dmin, dmax, diam]+SList
-            elif min(SyncNum,NonSync) <= 100:
+            elif min(SyncNum,NonSync) <= 1250:
                 if min(SyncNum,NonSync) == SyncNum:
                     if label == 1:
                         df.at[len(df.index),:] = [kap, edges, nodes, dmin, dmax, diam]+SList
@@ -133,7 +131,7 @@ def sample_WS(num_samples, NodeNum, prob, knn, kap, GHMItNum):
 
     return df, SyncNum
 
-SampleNum = 500
+SampleNum = 3000
 df,SyncNum =  sample_WS(SampleNum, NodeNum, prob, knn, kap, GHMItNum)
 df.to_csv('GHM_Dict_Data.csv')  
 print(SyncNum)

@@ -26,3 +26,8 @@ warnings.filterwarnings("ignore")
 
 WSDF = pd.read_csv('GHM_Dict_Data.csv').transpose() 
 print(WSDF)
+
+X, dictionary, code = make_sparse_coded_signal(n_samples=2500, n_components=4, n_features=10, n_nonzero_coefs=4, random_state=42)
+print(X)
+print(dictionary)
+print(code)
