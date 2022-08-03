@@ -3,6 +3,7 @@
 Created on Wed Jul 20 15:58:14 2022
 @author: Zihong Xu
 """
+import math
 import numpy as np
 import pandas   as pd
 import seaborn as sb
@@ -57,7 +58,7 @@ def GHM(G,S,kap,ItNum):
     
     return St, Sync 
 
-NodeNum = 14
+NodeNum = 16
 kap = 5
 knn = 4
 prob = 0.65
@@ -67,20 +68,20 @@ GHMItNum = 30
 def sample_WS(num_samples, NodeNum, prob, knn, kap, GHMItNum):
     BaseName = "S" 
     Edge_Base_Name = "E"
-    if knn%2 == 0:
-        Edge_Num = int(knn*NodeNum/2)
-    else:
-        Edge_Num = int((knn-1)*NodeNum/2)
     InitPhaseList = list(np.zeros(NodeNum))
-    EdgeList = list(np.zeros(Edge_Num))
-    for i in range(Edge_Num):
-        EdgeList[i] = f'{Edge_Base_Name}_{i}'
+    EdgeList = list(np.zeros(int(NodeNum*NodeNum)))
+    for i in range(int(NodeNum*NodeNum)):
+        Row_Pos = math.floor(i/NodeNum)
+        Col_Pos = i%NodeNum
+        Row_Pos_Name = str(Row_Pos)
+        Col_Pos_Name = str(Col_Pos)
+        EdgeList[i] = f'{Edge_Base_Name}_{Row_Pos_Name}_{Col_Pos_Name}'
 
     for i in range(NodeNum):
         InitPhaseList[i] = f'{BaseName}_{i}_{1}'
     ColList = ['kappa', '# Edges', '# Nodes', 'Min Degree', 'Max Degree', 'Diameter']
     ColList.extend(InitPhaseList)
-    # ColList.extend(EdgeList)
+    ColList.extend(EdgeList)
     ColList.extend(['label'])
     print(ColList)
     df = pd.DataFrame(columns=ColList)
@@ -106,8 +107,8 @@ def sample_WS(num_samples, NodeNum, prob, knn, kap, GHMItNum):
             diam = nx.diameter(G)
             
             # Applying GHM
-            AdjMatrix = nx.to_numpy_matrix(G, nodelist=sorted(G.nodes()))
-            
+            Adj_Matrix = nx.to_numpy_matrix(G, nodelist=sorted(G.nodes()))
+            Vec_Adj_Matrix = list(np.asarray(Adj_Matrix).astype(int).flatten())
             state, label = GHM(G, s, kap, GHMItNum)
             if label:
                 label = 1
@@ -117,16 +118,18 @@ def sample_WS(num_samples, NodeNum, prob, knn, kap, GHMItNum):
                 NonSync += 1
             
             SList = list(s)
+            SList.extend(Vec_Adj_Matrix)
             SList.append(label)
-            if max(SyncNum,NonSync) <= 1250:
-                df.at[len(df.index),:] = [kap, edges, nodes, dmin, dmax, diam]+SList
-            elif min(SyncNum,NonSync) <= 1250:
+            if max(SyncNum,NonSync) <= 1225:
+                df.at[len(df.index)] = [kap, edges, nodes, dmin, dmax, diam]+SList
+                
+            elif min(SyncNum,NonSync) <= 1225:
                 if min(SyncNum,NonSync) == SyncNum:
                     if label == 1:
-                        df.at[len(df.index),:] = [kap, edges, nodes, dmin, dmax, diam]+SList
+                        df.at[len(df.index)] = [kap, edges, nodes, dmin, dmax, diam]+SList
                 elif min(SyncNum,NonSync) == NonSync:
                     if label == 0:
-                        df.at[len(df.index),:] = [kap, edges, nodes, dmin, dmax, diam]+SList
+                        df.at[len(df.index)] = [kap, edges, nodes, dmin, dmax, diam]+SList
     
 
     return df, SyncNum
