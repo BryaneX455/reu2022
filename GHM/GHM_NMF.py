@@ -235,11 +235,12 @@ list_keys = list(WSD.keys())
 print('list_keys:', list_keys[:25])
 
 y = b['label']
-df_true = b[y == 1]
-c = df_true.loc[:, 'S_0_1':'E_14_15']
+df_True = b[y == 1]
+df_False = b[y == 0]
+c = df_True.loc[:, 'S_0_1':'E_14_15']
+c_False = df_False.loc[:,'S_0_1':'E_14_15']
 X = c.values.transpose()
-print(X)
-print(X.shape)
+X_False = c_False.values.transpose()
 
 W, H = ALS(X=X, 
            n_components=16, # Reconstruction Error reduces as n_components increases
@@ -258,3 +259,21 @@ display_dictionary(X[:,:100], figsize=[15,15])
 
 display_dictionary(W, figsize=[10,10])
 
+W_False, H_False = ALS(X=X_False, 
+           n_components=16, # Reconstruction Error reduces as n_components increases
+           n_iter=100, 
+           a0 = 0, # L1 regularizer for H
+           a1 = 0, # L1 regularizer for W
+           a12 = 0, # L2 regularizer for W
+           H_nonnegativity=True,
+           W_nonnegativity=True,
+           compute_recons_error=True,
+           subsample_ratio=1)
+
+print(f"Shape of W_False: {W.shape}\nShape of H_False: {H.shape}")
+print(W_False)
+print(H_False)
+
+display_dictionary(X_False[:,:100], figsize=[15,15])
+
+display_dictionary(W_False, figsize=[10,10])
