@@ -185,8 +185,7 @@ def display_dictionary(W, save_name=None, score=None, grid_shape=None, figsize=[
     fig, axs = plt.subplots(nrows=rows, ncols=cols, figsize=figsize0,
                             subplot_kw={'xticks': [], 'yticks': []})
         
-        
-    for ax, i in zip(axs.flat, range(100)):
+    for ax, i in zip(axs.flat, range(W.shape[1])):
         if score is not None:
             idx = np.argsort(score)
             idx = np.flip(idx)    
@@ -208,23 +207,6 @@ def display_dictionary(W, save_name=None, score=None, grid_shape=None, figsize=[
         plt.savefig( save_name, bbox_inches='tight')
     plt.show()
     
-# Applying NMF on X
-W, H = ALS(X=X, 
-           n_components=16, # Reconstruction Error reduces as n_components increases
-           n_iter=100, 
-           a0 = 0, # L1 regularizer for H
-           a1 = 0, # L1 regularizer for W
-           a12 = 0, # L2 regularizer for W
-           H_nonnegativity=True,
-           W_nonnegativity=True,
-           compute_recons_error=True,
-           subsample_ratio=1)
-
-print(f"Shape of W: {W.shape}\nShape of H: {H.shape}")
-
-display_dictionary(X[:,:100], figsize=[15,15])
-
-display_dictionary(W, figsize=[10,10])
 
 WSD = pd.read_csv('GHM_Dict_Data.csv')
 print('WSD:', WSD)
@@ -237,12 +219,12 @@ print('list_keys:', list_keys[:25])
 y = b['label']
 df_True = b[y == 1]
 df_False = b[y == 0]
-c = df_True.loc[:, 'S_0_1':'E_14_15']
-c_False = df_False.loc[:,'S_0_1':'E_14_15']
-X = c.values.transpose()
+c_True = df_True.loc[:, 'S_0_1':'E_15_15']
+c_False = df_False.loc[:,'S_0_1':'E_15_15']
+X_True = c_True.values.transpose()
 X_False = c_False.values.transpose()
 
-W, H = ALS(X=X, 
+W_True, H_True = ALS(X=X_True, 
            n_components=16, # Reconstruction Error reduces as n_components increases
            n_iter=100, 
            a0 = 0, # L1 regularizer for H
@@ -253,11 +235,11 @@ W, H = ALS(X=X,
            compute_recons_error=True,
            subsample_ratio=1)
 
-print(f"Shape of W: {W.shape}\nShape of H: {H.shape}")
+print(f"Shape of X_True: {X_True.shape}\nShape of W_True: {W_True.shape}\nShape of H_True: {H_True.shape}")
 
-display_dictionary(X[:,:100], figsize=[15,15])
+display_dictionary(X_True[16:,:225], figsize=[15,15])
 
-display_dictionary(W, figsize=[10,10])
+display_dictionary(W_True[16:], figsize=[10,10])
 
 W_False, H_False = ALS(X=X_False, 
            n_components=16, # Reconstruction Error reduces as n_components increases
@@ -270,10 +252,75 @@ W_False, H_False = ALS(X=X_False,
            compute_recons_error=True,
            subsample_ratio=1)
 
-print(f"Shape of W_False: {W.shape}\nShape of H_False: {H.shape}")
-print(W_False)
-print(H_False)
+print(f"Shape of X_False: {X_False.shape}\nShape of W_False: {W_False.shape}\nShape of H_False: {H_False.shape}")
 
-display_dictionary(X_False[:,:100], figsize=[15,15])
+display_dictionary(X_False[16:,:225], figsize=[15,15])
 
-display_dictionary(W_False, figsize=[10,10])
+display_dictionary(W_False[16:], figsize=[10,10])
+
+
+def plot_adj_to_graph_deg(n, weighted, filename=None):
+    Subhraph_Col_Num = n
+    Subhraph_Row_Num = int(np.ceil(n/2))
+    fig, axs = plt.subplots(ncols=Subhraph_Col_Num, nrows=Subhraph_Row_Num, figsize=(Subhraph_Col_Num*5, Subhraph_Row_Num*5))
+    Reshape_True_Width = int(np.sqrt(len(W_True[16:])))
+    Reshape_False_Width = int(np.sqrt(len(W_False[16:])))
+    print(Reshape_True_Width)
+    if weighted:
+        for i in range(n):
+            df_adj = pd.DataFrame(W_True[16:].T[i].reshape(Reshape_True_Width, Reshape_True_Width))
+            G = nx.Graph()
+            G = nx.from_pandas_adjacency(df_adj)
+            edges = G.edges()
+            weights = [250*G[u][v]['weight'] for u,v in edges]
+            print(weights)
+            nx.draw(G, ax=axs[(i//4)*2,i%4], width=weights)
+            axs[(i//4)*2,i%4].title.set_text('Synchronizing')
+            deg_seq = sorted((d for n, d in G.degree(weight='weight')), reverse=True)
+            axs[(i//4)*2+1,i%4].plot(deg_seq, "b-", marker="o")
+
+        for i in range(n):
+            df_adj = pd.DataFrame(W_False[16:].T[i].reshape(Reshape_False_Width, Reshape_False_Width))
+            G = nx.Graph()
+            G = nx.from_pandas_adjacency(df_adj)
+            print(G)
+            edges = G.edges()
+            weights = [250*G[u][v]['weight'] for u,v in edges]
+            nx.draw(G, ax=axs[(i//4)*2,i%4+4], width=weights)
+            axs[(i//4)*2,i%4+4].title.set_text('Non-Synchronizing')
+            deg_seq = sorted((d for n, d in G.degree(weight='weight')), reverse=True)
+            axs[(i//4)*2+1,i%4+4].plot(deg_seq, "b-", marker="o")
+        if filename != None:
+            fig.savefig(filename)
+        plt.show()
+        
+    else:
+        for i in range(n):
+            df_adj = pd.DataFrame(W_True[16:].T[i].reshape(Reshape_True_Width, Reshape_True_Width))
+            G = nx.Graph()
+            G = nx.from_pandas_adjacency(df_adj)
+            edges = G.edges()
+            weights = [250*G[u][v]['weight'] for u,v in edges]
+            nx.draw(G, ax=axs[(i//4)*2,i%4], width=weights)
+            axs[(i//4)*2,i%4].title.set_text('Synchronizing')
+            deg_seq = sorted((d for n, d in G.degree()), reverse=True)
+            axs[(i//4)*2+1,i%4].plot(deg_seq, "b-", marker="o")
+
+        for i in range(n):
+            df_adj = pd.DataFrame(W_False[16:].T[i].reshape(Reshape_False_Width, Reshape_False_Width))
+            G = nx.Graph()
+            G = nx.from_pandas_adjacency(df_adj)
+            edges = G.edges()
+            weights = [250*G[u][v]['weight'] for u,v in edges]
+            nx.draw(G, ax=axs[(i//4)*2,i%4+4], width=weights)
+            axs[(i//4)*2,i%4+4].title.set_text('Non-Synchronizing')
+            deg_seq = sorted((d for n, d in G.degree()), reverse=True)
+            axs[(i//4)*2+1,i%4+4].plot(deg_seq, "b-", marker="o")
+        if filename != None:
+            fig.savefig(filename)
+        plt.show()
+        
+    print(deg_seq)
+        
+n=8        
+plot_adj_to_graph_deg(n, True)
