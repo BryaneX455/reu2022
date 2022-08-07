@@ -15,7 +15,7 @@ import csv
 
 from pathlib import Path  
 from itertools import product
-
+from itertools import chain
 
 def GHM(G,S,kap,ItNum):
     S = list(S)
@@ -78,12 +78,12 @@ def sample_WS(num_samples, NodeNum, prob, knn, kap, GHMItNum):
         EdgeList[i] = f'{Edge_Base_Name}_{Row_Pos_Name}_{Col_Pos_Name}'
 
     for i in range(NodeNum):
-        InitPhaseList[i] = f'{BaseName}_{i}_{1}'
+        InitPhaseList[i] = f'{BaseName}_{i}_{0}'
+        
     ColList = ['kappa', '# Edges', '# Nodes', 'Min Degree', 'Max Degree', 'Diameter']
     ColList.extend(InitPhaseList)
     ColList.extend(EdgeList)
     ColList.extend(['label'])
-    print(ColList)
     df = pd.DataFrame(columns=ColList)
     
     SyncNum = 0
@@ -110,6 +110,7 @@ def sample_WS(num_samples, NodeNum, prob, knn, kap, GHMItNum):
             Adj_Matrix = nx.to_numpy_matrix(G, nodelist=sorted(G.nodes()))
             Vec_Adj_Matrix = list(np.asarray(Adj_Matrix).astype(int).flatten())
             state, label = GHM(G, s, kap, GHMItNum)
+            All_Later_States_flatten = list(chain.from_iterable(state[1:]))
             if label:
                 label = 1
                 SyncNum += 1
