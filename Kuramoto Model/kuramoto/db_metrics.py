@@ -43,15 +43,16 @@ def gen_all(nodes, r, num_samples, edge_var="L", random_K=False, half_sync=False
         assert(edge_var in ["L", "H", "F"]), "The edge variance can either be \"L\" (Low), \"H\" (High), or \"F\" (Fixed)."
         
         if edge_var=="L":
-            neighbors = int(random.uniform(15, 20))
+            neighbors = int(random.uniform(5, 10))
             
         elif edge_var=="H":
-            neighbors = int(random.uniform(1, 20))
+            neighbors = int(random.uniform(1, 10))
             
         else:
-            neighbors = 15
+            neighbors = 5
             
         probability = random.uniform(0, 1)
+
         G = nx.newman_watts_strogatz_graph(nodes, neighbors, probability)
         graph_list.append(G)
         
@@ -361,22 +362,26 @@ def g2v_KM_nodynamics(nodes, num_samples, edge_var="L", random_K=False, half_syn
     
     return df_final
 
-def generate_data(df, oversample=True):
+def generate_data(df):
+    df_true = df[df['Concentrated'] == True]
+    df_false = df[df['Concentrated'] == False]
+    
+    if len(df_true) >= len(df_false):
+        df_true = df_true.sample(n = len(df_false))
+    else:
+        df_false = df_false.sample(n = len(df_true))
+        
+    df = pd.concat([df_true, df_false], ignore_index = True)
+    df = df.sample(frac=1).reset_index(drop=True)
+    
     X, y = df.iloc[:, :-1], df.iloc[:, [-1]]
     y = y.astype('int')
 
-    if oversample:
-        sampler = RandomOverSampler()
-    else:
-        sampler = RandomUnderSampler()
-        
-    X_resampled, y_resampled = sampler.fit_resample(X, y)
-
-    X_train, X_test, y_train, y_test = train_test_split(X_resampled, y_resampled,
-                                                        test_size = 0.25,
-                                                        stratify = y_resampled)
+    X_train, X_test, y_train, y_test = train_test_split(X, y,
+                                                        test_size = 0.25)
     
     return X_train, X_test, y_train, y_test
+
 
 def gen_g2v_nodynamics_data(df, oversample = True):
     X, y = df.iloc[:, 0:16], df.iloc[:, [-1]]

@@ -98,9 +98,23 @@ class Kuramoto:
         if angles_vec is None:
             angles_vec = self.init_angles()
 
-        sim = self.integrate(angles_vec, adj_mat)
-            
-        if (np.sin(sim.T)[-1].max()-np.sin(sim.T)[-1].min()) < 1: self.concentrated=True
+        sim = self.integrate(angles_vec, adj_mat) % (2*np.pi)
+        
+        arr = sim.T[-1]
+        
+        v1 = []
+        
+        for i in range(len(arr) - 1) :
+            diff = arr[i + 1] - arr[i]
+            v1.append(diff)
+        
+        extra_diff = (2*np.pi - arr[len(arr) - 1]) + arr[0]
+        v1.append(extra_diff)
+        v1 = np.array(v1)
+        
+        v2 = np.repeat(2*np.pi, len(v1)) - v1
+        
+        if v2.min() < np.pi: self.concentrated=True
         else: self.concentrated=False
             
         return sim
