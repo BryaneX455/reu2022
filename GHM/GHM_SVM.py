@@ -22,13 +22,13 @@ from imblearn.over_sampling import RandomOverSampler
 from imblearn.under_sampling import RandomUnderSampler
 
 
-WSDF = pd.read_csv('GHM.csv')
-X = np.array(WSDF[['kappa', '# Edges', '# Nodes', 'Min Degree', 'Max Degree', 'Diameter']])
+WSDF = pd.read_csv('GHM_Dict_Data_AllStates.csv')
+X = np.array(WSDF.loc[:,'kappa':'E_15_15'])
 Y = np.array(WSDF['label'])
 print(Y)
 pass 
 
-ros = RandomOverSampler(random_state=100)
+ros = RandomOverSampler(random_state=42)
 X_resampled, Y_resampled = ros.fit_resample(X, Y)
 
 X_train, X_test, Y_train, Y_test = train_test_split(X, Y, 

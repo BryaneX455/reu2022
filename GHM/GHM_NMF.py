@@ -8,18 +8,18 @@ Created on Tue Jul 26 21:36:07 2022
 #Imports
 import pandas as pd
 import numpy as np
-from NNetwork import NNetwork as nn
 import networkx as nx
-#import utils.NNetwork as nn
 import matplotlib.pyplot as plt
+import matplotlib.gridspec as gridspec
+import warnings
+from NNetwork import NNetwork as nn
 from sklearn import svm
 from sklearn import metrics, model_selection
 from tqdm import trange
 from sklearn.cluster import KMeans
-import matplotlib.gridspec as gridspec
 from sklearn.decomposition import PCA ### Use truncated SVD / online PCA later for better computational efficiency
 from sklearn.datasets import make_sparse_coded_signal
-import warnings
+from SDL_src.SNMF import SNMF
 warnings.filterwarnings("ignore")
 
 
