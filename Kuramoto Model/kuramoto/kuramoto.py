@@ -4,7 +4,7 @@ from scipy.integrate import odeint
 
 class Kuramoto:
 
-    def __init__(self, coupling=1, dt=0.01, T=10, n_nodes=None, natfreqs=None, half_sync=False):
+    def __init__(self, coupling=1, dt=0.01, T=10, n_nodes=None, base_iter=126, natfreqs=None, half_sync=False):
         '''
         coupling: float
             Coupling strength. Default = 1. Typical values range between 0.4-2
@@ -17,6 +17,9 @@ class Kuramoto:
             Number of oscillators.
             If None, it is inferred from len of natfreqs.
             Must be specified if natfreqs is not given.
+        base_iter: int, optional
+            Training iteration.
+            This is where the "baseline" concentration is calculated.
         natfreqs: 1D ndarray, optional
             Natural oscillation frequencies.
             If None, then new random values will be generated and kept fixed
@@ -30,6 +33,7 @@ class Kuramoto:
         self.dt = dt
         self.T = T
         self.coupling = coupling
+        self.base_iter = base_iter
         self.half_sync = half_sync
         
         if self.half_sync == False: self.concentrated=False
@@ -100,22 +104,31 @@ class Kuramoto:
 
         sim = self.integrate(angles_vec, adj_mat) % (2*np.pi)
         
+        def predict_concentration(arr):
+            v1 = []
+            for i in range(len(arr) - 1) :
+                diff = arr[i + 1] - arr[i]
+                v1.append(diff)
+            extra_diff = (2*np.pi - arr[len(arr) - 1]) + arr[0]
+            v1.append(extra_diff)
+            
+            v1 = np.array(v1)
+            
+            width = np.abs(2*np.pi - v1.max())
+            threshold = np.pi
+            
+            if width < threshold: 
+                return True
+            else: 
+                return False
+        
+        ## Baseline iteration concentration
+        base_arr = sim.T[self.base_iter]
+        self.baseline = predict_concentration(base_arr)
+        
+        ## Training iteration concentration
         arr = sim.T[-1]
-        
-        v1 = []
-        
-        for i in range(len(arr) - 1) :
-            diff = arr[i + 1] - arr[i]
-            v1.append(diff)
-        
-        extra_diff = (2*np.pi - arr[len(arr) - 1]) + arr[0]
-        v1.append(extra_diff)
-        v1 = np.array(v1)
-        
-        v2 = np.repeat(2*np.pi, len(v1)) - v1
-        
-        if v2.min() < np.pi: self.concentrated=True
-        else: self.concentrated=False
+        self.concentrated = predict_concentration(arr)
             
         return sim
 
