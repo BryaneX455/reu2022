@@ -43,15 +43,16 @@ def gen_all(nodes, r, num_samples, edge_var="L", random_K=False, half_sync=False
         assert(edge_var in ["L", "H", "F"]), "The edge variance can either be \"L\" (Low), \"H\" (High), or \"F\" (Fixed)."
         
         if edge_var=="L":
-            neighbors = int(random.uniform(15, 20))
+            neighbors = int(random.uniform(5, 10))
             
         elif edge_var=="H":
-            neighbors = int(random.uniform(1, 20))
+            neighbors = int(random.uniform(1, 10))
             
         else:
-            neighbors = 15
+            neighbors = 5
             
         probability = random.uniform(0, 1)
+
         G = nx.newman_watts_strogatz_graph(nodes, neighbors, probability)
         graph_list.append(G)
         
@@ -113,13 +114,18 @@ def gen_all(nodes, r, num_samples, edge_var="L", random_K=False, half_sync=False
     return df_final
         
         
-def gen_KM(nodes, r, num_samples, edge_var="L", random_K=False, half_sync=False):
+def gen_KM(nodes, num_samples, r=126, edge_var="L", random_K=False, half_sync=False):
     
     df = pd.DataFrame()
     
+    headers = []
+    for i in range(1, nodes+1):
+        for j in range(1, r+1):
+            headers.append(f's{i}_{j}')
+    
     for i in range(num_samples):
         
-        df1 = pd.DataFrame(columns=['# Edges', '# Nodes', 'Min Degree', 'Max Degree', 'Diameter', 'Concentrated'])
+        df1 = pd.DataFrame(columns=['# Edges', '# Nodes', 'Min Degree', 'Max Degree', 'Diameter', 'Baseline', 'Synchronized'])
         temp = pd.DataFrame()
         
         nodes = nodes
@@ -133,13 +139,13 @@ def gen_KM(nodes, r, num_samples, edge_var="L", random_K=False, half_sync=False)
             neighbors = int(random.uniform(1, 20))
             
         else:
-            neighbors = 15
+            neighbors = 5
             
-        probability = random.uniform(0, 1)
+        probability = 0.65
         G = nx.newman_watts_strogatz_graph(nodes, neighbors, probability)
         
         if random_K: K = random.uniform(0.5, 4.5)
-        else: K = 1.96
+        else: K = 1
         
         if nx.is_connected(G):
             # Number of Edges and Nodes
@@ -159,16 +165,19 @@ def gen_KM(nodes, r, num_samples, edge_var="L", random_K=False, half_sync=False)
 
             if half_sync:
                 natfreqs = np.repeat(2 * np.pi * 0, nodes)
-                model = Kuramoto(coupling=K, dt=0.01, T=25, natfreqs=natfreqs, half_sync=half_sync)
+                model = Kuramoto(coupling=K, dt=0.01, T=18, base_iter=r, natfreqs=natfreqs, half_sync=half_sync)
             else:
-                model = Kuramoto(coupling=K, dt=0.01, T=25, n_nodes=nodes, half_sync=half_sync)
+                model = Kuramoto(coupling=K, dt=0.01, T=18, n_nodes=nodes, base_iter=r, half_sync=half_sync)
 
             sim = model.run(adj_mat)
+            baseline = int(model.baseline)
             conc = int(model.concentrated)
             
-            df1.at[len(df1.index)] = [edges, nodes, dmin, dmax, diam, conc]
+            df1.at[len(df1.index)] = [edges, nodes, dmin, dmax, diam, baseline, conc]
 
             df2 = pd.DataFrame(sim[:,:r].flatten(order='C')).T
+            df2.columns = headers
+            
             temp = pd.concat([df2, df1], axis=1)
 
             df = pd.concat([df, temp], ignore_index=True)
@@ -361,22 +370,26 @@ def g2v_KM_nodynamics(nodes, num_samples, edge_var="L", random_K=False, half_syn
     
     return df_final
 
-def generate_data(df, oversample=True):
+def generate_data(df):
+    df_true = df[df['Concentrated'] == True]
+    df_false = df[df['Concentrated'] == False]
+    
+    if len(df_true) >= len(df_false):
+        df_true = df_true.sample(n = len(df_false))
+    else:
+        df_false = df_false.sample(n = len(df_true))
+        
+    df = pd.concat([df_true, df_false], ignore_index = True)
+    df = df.sample(frac=1).reset_index(drop=True)
+    
     X, y = df.iloc[:, :-1], df.iloc[:, [-1]]
     y = y.astype('int')
 
-    if oversample:
-        sampler = RandomOverSampler()
-    else:
-        sampler = RandomUnderSampler()
-        
-    X_resampled, y_resampled = sampler.fit_resample(X, y)
-
-    X_train, X_test, y_train, y_test = train_test_split(X_resampled, y_resampled,
-                                                        test_size = 0.25,
-                                                        stratify = y_resampled)
+    X_train, X_test, y_train, y_test = train_test_split(X, y,
+                                                        test_size = 0.25)
     
     return X_train, X_test, y_train, y_test
+
 
 def gen_g2v_nodynamics_data(df, oversample = True):
     X, y = df.iloc[:, 0:16], df.iloc[:, [-1]]
