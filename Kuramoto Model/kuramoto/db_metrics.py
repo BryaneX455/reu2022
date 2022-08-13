@@ -139,13 +139,13 @@ def gen_KM(nodes, num_samples, r=126, edge_var="L", random_K=False, half_sync=Fa
             neighbors = int(random.uniform(1, 20))
             
         else:
-            neighbors = 5
+            neighbors = 10
             
-        probability = 0.65
+        probability = 0.85
         G = nx.newman_watts_strogatz_graph(nodes, neighbors, probability)
         
         if random_K: K = random.uniform(0.5, 4.5)
-        else: K = 1
+        else: K = 2
         
         if nx.is_connected(G):
             # Number of Edges and Nodes

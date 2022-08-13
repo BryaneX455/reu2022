@@ -104,31 +104,57 @@ class Kuramoto:
 
         sim = self.integrate(angles_vec, adj_mat) % (2*np.pi)
         
-        def predict_concentration(arr):
-            v1 = []
-            for i in range(len(arr) - 1) :
-                diff = arr[i + 1] - arr[i]
-                v1.append(diff)
-            extra_diff = (2*np.pi - arr[len(arr) - 1]) + arr[0]
-            v1.append(extra_diff)
+#         def predict_concentration(arr):
+#             v1 = []
+#             for i in range(len(arr) - 1) :
+#                 diff = arr[i + 1] - arr[i]
+#                 v1.append(diff)
+#             extra_diff = (2*np.pi - arr[len(arr) - 1]) + arr[0]
+#             v1.append(extra_diff)
             
-            v1 = np.array(v1)
+#             v1 = np.array(v1)
             
-            width = np.abs(2*np.pi - v1.max())
+#             width = np.abs(2*np.pi - v1.max())
+#             threshold = np.pi
+            
+#             if width < threshold: 
+#                 return True
+#             else: 
+#                 return False
+
+        def predict_concentration(colors):
+            """
+            computes width from a color list
+            """
+            #print(colors)
+            ordered = list(np.pi - colors); ordered.sort()
+            lordered = len(ordered)
+            #print(ordered)
             threshold = np.pi
-            
-            if width < threshold: 
-                return True
-            else: 
-                return False
+            if ordered == 0:
+                assert("Empty array or logic error.")
+            elif lordered == 1:
+                return 0
+            elif lordered == 2:
+                dw = ordered[1]-ordered[0]
+                if dw > threshold:
+                    return 2*np.pi - dw
+                else:
+                    return dw
+            else:
+                widths = [2*np.pi+ordered[0]-ordered[-1]]
+                for i in range(lordered-1):
+                    widths.append(ordered[i+1]-ordered[i])
+                #print(min(widths),'------')
+                return np.abs(2*np.pi - max(widths))
         
         ## Baseline iteration concentration
         base_arr = sim.T[self.base_iter]
-        self.baseline = predict_concentration(base_arr)
+        self.baseline = (predict_concentration(base_arr) < np.pi)
         
         ## Training iteration concentration
         arr = sim.T[-1]
-        self.concentrated = predict_concentration(arr)
+        self.concentrated = (predict_concentration(arr) < np.pi)
             
         return sim
 
