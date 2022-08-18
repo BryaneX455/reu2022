@@ -17,7 +17,7 @@ import seaborn as sb
 from SDL_main.src.SNMF import SNMF
 from SDL_main.src.SDL_BCD import SDL_BCD
 from SDL_main.src.SDL_SVP import SDL_SVP
-from NNetwork import NNetwork as nn
+from NNetwork_master.src.NNetwork import NNetwork as nn
 from sklearn import metrics, model_selection
 from tqdm import trange
 from sklearn.cluster import KMeans
