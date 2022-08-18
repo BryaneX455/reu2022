@@ -207,7 +207,7 @@ class Data_Gen:
 
         ntwk = 'Caltech36' # COVID_PPI, Wisconsin87, Caltech36
         ntwk_nonumber = ''.join([i for i in ntwk if not i.isdigit()])
-        k=20
+        k=self.NodeNum
         
         path = str(ntwk) + '.txt'
         G = nn.NNetwork()
@@ -288,3 +288,179 @@ class Data_Gen:
         
     
         return df, SyncNum
+    
+    
+    def Equal_Sample_HarvardGHM(self):
+        sampling_alg = 'pivot'
+
+        ntwk = 'Harvard1' # COVID_PPI, Wisconsin87, Caltech36
+        ntwk_nonumber = ''.join([i for i in ntwk if not i.isdigit()])
+        k=self.NodeNum
+        
+        path = str(ntwk) + '.txt'
+        G = nn.NNetwork()
+        G.load_add_edges(path, increment_weights=False, use_genfromtxt=True)
+        #print('num nodes in G', len(G.nodes()))
+        #print('num edges in G', len(G.get_edges()))
+        
+        X, embs = G.get_patches(k=k, sample_size=self.num_samples, skip_folded_hom=True)
+        graph_list = self.generate_nxg(X)
+        SyncNum = 0
+        NonSync = 0
+        BaseName = "S" 
+        Edge_Base_Name = "E"
+        InitPhaseList = list(np.zeros(k))
+        AllPhase = list(np.zeros(int(k*(self.GHMItNum-1))))
+        EdgeList = list(np.zeros(int(k*k)))
+        
+        for i in range(int(k*k)):
+            Row_Pos = math.floor(i/k)
+            Col_Pos = i%k
+            Row_Pos_Name = str(Row_Pos)
+            Col_Pos_Name = str(Col_Pos)
+            EdgeList[i] = f'{Edge_Base_Name}_{Row_Pos_Name}_{Col_Pos_Name}'
+    
+        for i in range(k):
+            InitPhaseList[i] = f'{BaseName}_{i}_{0}'
+            
+        for i in range(int(k*(self.GHMItNum-1))):
+            ItNum = math.floor(i/k)+1
+            Col_Pos = i%k
+            BaseName = "S"       
+            AllPhase[i] = f'{BaseName}_{Col_Pos}_{ItNum}'
+            
+        ColList = ['kappa', '# Edges', '# Nodes', 'Min Degree', 'Max Degree', 'Diameter']
+        ColList.extend(EdgeList)
+        ColList.extend(InitPhaseList)
+        ColList.extend(AllPhase)
+        ColList.extend(['label'])
+        df = pd.DataFrame(columns=ColList)
+        i = 0
+        for G in graph_list:
+            print(i)
+            s = np.random.randint(5, size=1*k)
+            if nx.is_connected(G):
+                # Number of Edges and Nodes
+                # EdgeList = G.edges
+                edges = G.number_of_edges()
+                nodes = G.number_of_nodes()
+    
+                # Min and Max degree
+                degree_sequence = sorted((d for n, d in G.degree()), reverse=True)
+                dmax = max(degree_sequence)
+                dmin = min(degree_sequence)
+    
+                # Diameter of graph
+                diam = nx.diameter(G)
+                
+                # Applying GHM
+                Adj_Matrix = nx.to_numpy_matrix(G, nodelist=sorted(G.nodes()))
+                Vec_Adj_Matrix = list(np.asarray(Adj_Matrix).astype(int).flatten())
+                GHM_Class = GHM(G=G, S=s, Kap=self.kap, ItNum=self.GHMItNum)
+                state, label = GHM_Class.GHM1D()
+                All_Later_States_flatten = list(chain.from_iterable(state[1:]))
+                if label:
+                    label = 1
+                    SyncNum += 1
+                else:
+                    label = 0
+                    NonSync += 1
+                
+                SList = []
+                SList.extend(Vec_Adj_Matrix)
+                SList.extend(list(s))
+                SList.extend(All_Later_States_flatten)
+                SList.append(label)
+                df.at[len(df.index)] = [self.kap, edges, nodes, dmin, dmax, diam]+SList
+            i+=1
+        
+    
+        return df, SyncNum
+    
+    def Equal_Sample_WisconsinGHM(self):
+        sampling_alg = 'pivot'
+
+        ntwk = 'Wisconsin87' # COVID_PPI, Wisconsin87, Caltech36
+        ntwk_nonumber = ''.join([i for i in ntwk if not i.isdigit()])
+        k=self.NodeNum
+        
+        path = str(ntwk) + '.txt'
+        G = nn.NNetwork()
+        G.load_add_edges(path, increment_weights=False, use_genfromtxt=True)
+        #print('num nodes in G', len(G.nodes()))
+        #print('num edges in G', len(G.get_edges()))
+        
+        X, embs = G.get_patches(k=k, sample_size=self.num_samples, skip_folded_hom=True)
+        graph_list = self.generate_nxg(X)
+        SyncNum = 0
+        NonSync = 0
+        BaseName = "S" 
+        Edge_Base_Name = "E"
+        InitPhaseList = list(np.zeros(k))
+        AllPhase = list(np.zeros(int(k*(self.GHMItNum-1))))
+        EdgeList = list(np.zeros(int(k*k)))
+        
+        for i in range(int(k*k)):
+            Row_Pos = math.floor(i/k)
+            Col_Pos = i%k
+            Row_Pos_Name = str(Row_Pos)
+            Col_Pos_Name = str(Col_Pos)
+            EdgeList[i] = f'{Edge_Base_Name}_{Row_Pos_Name}_{Col_Pos_Name}'
+    
+        for i in range(k):
+            InitPhaseList[i] = f'{BaseName}_{i}_{0}'
+            
+        for i in range(int(k*(self.GHMItNum-1))):
+            ItNum = math.floor(i/k)+1
+            Col_Pos = i%k
+            BaseName = "S"       
+            AllPhase[i] = f'{BaseName}_{Col_Pos}_{ItNum}'
+            
+        ColList = ['kappa', '# Edges', '# Nodes', 'Min Degree', 'Max Degree', 'Diameter']
+        ColList.extend(EdgeList)
+        ColList.extend(InitPhaseList)
+        ColList.extend(AllPhase)
+        ColList.extend(['label'])
+        df = pd.DataFrame(columns=ColList)
+        i = 0
+        for G in graph_list:
+            print(i)
+            s = np.random.randint(5, size=1*k)
+            if nx.is_connected(G):
+                # Number of Edges and Nodes
+                # EdgeList = G.edges
+                edges = G.number_of_edges()
+                nodes = G.number_of_nodes()
+    
+                # Min and Max degree
+                degree_sequence = sorted((d for n, d in G.degree()), reverse=True)
+                dmax = max(degree_sequence)
+                dmin = min(degree_sequence)
+    
+                # Diameter of graph
+                diam = nx.diameter(G)
+                
+                # Applying GHM
+                Adj_Matrix = nx.to_numpy_matrix(G, nodelist=sorted(G.nodes()))
+                Vec_Adj_Matrix = list(np.asarray(Adj_Matrix).astype(int).flatten())
+                GHM_Class = GHM(G=G, S=s, Kap=self.kap, ItNum=self.GHMItNum)
+                state, label = GHM_Class.GHM1D()
+                All_Later_States_flatten = list(chain.from_iterable(state[1:]))
+                if label:
+                    label = 1
+                    SyncNum += 1
+                else:
+                    label = 0
+                    NonSync += 1
+                
+                SList = []
+                SList.extend(Vec_Adj_Matrix)
+                SList.extend(list(s))
+                SList.extend(All_Later_States_flatten)
+                SList.append(label)
+                df.at[len(df.index)] = [self.kap, edges, nodes, dmin, dmax, diam]+SList
+            i+=1
+        
+    
+        return df, SyncNum
+
