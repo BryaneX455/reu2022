@@ -28,6 +28,7 @@ print(SyncNum)
 """
 Data Generation All State UCLA26
 """
+"""
 Num_Sample = 1000
 Num_Node  = 20
 Kap = 5
@@ -35,4 +36,17 @@ ItNum = 30
 Data_Gen_Class = Data_Gen(num_samples = Num_Sample, NodeNum = Num_Node, prob=None, knn=None, kap=Kap, GHMItNum = ItNum)
 df,SyncNum =  Data_Gen_Class.Equal_Sample_UCLAGHM()
 df.to_csv('GHM_Dict_Data_UCLA26_AllStates.csv')  
+print(SyncNum)
+"""
+
+"""
+Data Generation All State Caltech26
+"""
+Num_Sample = 1000
+Num_Node  = 20
+Kap = 5
+ItNum = 30
+Data_Gen_Class = Data_Gen(num_samples = Num_Sample, NodeNum = Num_Node, prob=None, knn=None, kap=Kap, GHMItNum = ItNum)
+df,SyncNum =  Data_Gen_Class.Equal_Sample_CaltechGHM()
+df.to_csv('GHM_Dict_Data_Caltech36_AllStates.csv')  
 print(SyncNum)

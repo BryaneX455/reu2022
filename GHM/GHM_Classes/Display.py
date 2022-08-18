@@ -72,8 +72,12 @@ class Display:
             fig.savefig(save_path, bbox_inches='tight')
             
             
-    def display_dictionary(self, title, W, save_name=None, score=None, grid_shape=None, figsize=[10,10]):
+    def display_dictionary(self, title, W, dictionary_shape = None, save_name=None, score=None, grid_shape=None, figsize=[10,10]):
         k = int(np.sqrt(W.shape[0]))
+        if dictionary_shape == None:
+            dict_shape = (k,k)
+        else:
+            dict_shape = dictionary_shape
         rows = int(np.sqrt(W.shape[1]))
         cols = int(np.sqrt(W.shape[1]))
         if grid_shape is not None:
@@ -94,11 +98,11 @@ class Display:
                 idx = np.argsort(score)
                 idx = np.flip(idx)    
                 
-                ax.imshow(W.T[idx[i]].reshape(k, k), cmap="viridis", interpolation='nearest')
+                ax.imshow(W.T[idx[i]].reshape(dict_shape), cmap="viridis", interpolation='nearest')
                 ax.set_xlabel('%1.2f' % score[i], fontsize=13)  # get the largest first
                 ax.xaxis.set_label_coords(0.5, -0.05)
             else: 
-                ax.imshow(W.T[i].reshape(k, k), cmap="viridis", interpolation='nearest')
+                ax.imshow(W.T[i].reshape(dict_shape), cmap="viridis", interpolation='nearest')
                 if score is not None:
                     ax.set_xlabel('%1.2f' % score[i], fontsize=13)  # get the largest first
                     ax.xaxis.set_label_coords(0.5, -0.05)
