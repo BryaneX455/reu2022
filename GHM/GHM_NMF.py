@@ -85,7 +85,7 @@ title4 = 'Dictionary for WS_GHM Non-Sync'
 Display_Class.display_dictionary(title4, W_False, figsize=[10,10])
 print(W_False.shape)
 
-Display_Class.display_dict_and_graph(title='W_False-20-walks-UCLA-importance',
+Display_Class.display_dict_and_graph(title='W_False-20-walks-WS-importance',
                        W=W_False, 
                        At = np.dot(H_False, H_False.T), 
                        fig_size=[20,10], 
@@ -97,7 +97,7 @@ print("W_False_Row_Num:", len(W_False[16:]))
 
         
 n=8        
-Display_Class.plot_adj_to_graph_deg(W_True, W_False, n, True)
+Display_Class.plot_adj_to_graph_deg(W_True, W_False, n, True, title = 'WS_GHM_Dict_to_Graph_Deg')
 
 
 
@@ -176,5 +176,5 @@ print("W_False_Row_Num:", len(W_False[16:]))
 
         
 n=8        
-Display_Class.plot_adj_to_graph_deg(W_True, W_False, n, True)
+Display_Class.plot_adj_to_graph_deg(W_True, W_False, n, True, title = 'UCLA26_GHM_Dict_to_Graph_Deg')
 

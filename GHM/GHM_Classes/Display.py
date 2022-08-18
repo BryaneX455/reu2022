@@ -10,7 +10,7 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 import warnings
-from NNetwork import NNetwork as nn
+from NNetwork_master.src.NNetwork import NNetwork as nn
 warnings.filterwarnings("ignore")
 
 class Display:
@@ -199,7 +199,7 @@ class Display:
             fig.savefig(save_path, bbox_inches='tight')
             
             
-    def plot_adj_to_graph_deg(self, W_True, W_False, n, weighted, filename=None):
+    def plot_adj_to_graph_deg(self, W_True, W_False, n, weighted, filename=None, title=None):
         Subhraph_Col_Num = n
         Subhraph_Row_Num = int(np.ceil(n/2))
         fig, axs = plt.subplots(ncols=Subhraph_Col_Num, nrows=Subhraph_Row_Num, figsize=(Subhraph_Col_Num*5, Subhraph_Row_Num*5))
@@ -256,6 +256,8 @@ class Display:
                 axs[(i//4)*2,i%4+4].title.set_text('Non-Synchronizing')
                 deg_seq = sorted((d for n, d in G.degree()), reverse=True)
                 axs[(i//4)*2+1,i%4+4].plot(deg_seq, "b-", marker="o")
+            if title is not None:
+                plt.suptitle(title, fontsize=25)
             if filename != None:
                 fig.savefig(filename)
             plt.show()
