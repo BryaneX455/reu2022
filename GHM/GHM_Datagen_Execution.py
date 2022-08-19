@@ -8,7 +8,6 @@ Created on Mon Aug 15 23:15:30 2022
 from GHM_Classes.GHM import GHM
 from GHM_Classes.GHM_WS_Datagen_AllStates import Data_Gen
 
-
 """
 Data Generation All State WS
 """

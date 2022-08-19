@@ -29,6 +29,7 @@ from sklearn.metrics import confusion_matrix, precision_score, recall_score, f1_
 from sklearn.ensemble import RandomForestClassifier as rf
 from sklearn.svm import SVC
 from GHM_Classes.Display import Display
+from GHM_Classes.NMF import NMF
 
 
 # from yellowbrick.datasets import load_occupancy
@@ -36,103 +37,13 @@ from GHM_Classes.Display import Display
 # from karateclub import Graph2Vec
 warnings.filterwarnings("ignore")
 Display_Class = Display()
-
-def calc_closest_factors(c: int):
-    """Calculate the closest two factors of c.
-    
-    Returns:
-      [int, int]: The two factors of c that are closest; in other words, the
-        closest two integers for which a*b=c. If c is a perfect square, the
-        result will be [sqrt(c), sqrt(c)]; if c is a prime number, the result
-        will be [1, c]. The first number will always be the smallest, if they
-        are not equal.
-    """    
-    if c//1 != c:
-        raise TypeError("c must be an integer.")
-
-    a, b, i = 1, c, 0
-    while a < b:
-        i += 1
-        if c % i == 0:
-            a = i
-            b = c//a
-    
-    return (a,b)
+NMF_Class = NMF()
 
 
 def twoRandomNumbers(a,b): 
     test = random.random() # random float 0.0 <= x < 1.0 
     if test < 0.5: return a 
     else: return b
-
-def is_square(i: int) -> bool:
-    return i == math.isqrt(i) ** 2
-
-def coding(X, W, H0, 
-          r=None, 
-          a1=0, #L1 regularizer
-          a2=0, #L2 regularizer
-          sub_iter=[5], 
-          stopping_grad_ratio=0.0001, 
-          nonnegativity=True,
-          subsample_ratio=1):
-    """
-    Find \hat{H} = argmin_H ( || X - WH||_{F}^2 + a1*|H| + a2*|H|_{F}^{2} ) within radius r from H0
-    Use row-wise projected gradient descent
-    """
-    H1 = H0.copy()
-    i = 0
-    dist = 1
-    idx = np.arange(X.shape[1])
-    if subsample_ratio>1:  # subsample columns of X and solve reduced problem (like in SGD)
-        idx = np.random.randint(X.shape[1], size=X.shape[1]//subsample_ratio)
-    A = W.T @ W ## Needed for gradient computation
-    grad = W.T @ (W @ H0 - X)
-    while (i < np.random.choice(sub_iter)):
-        step_size = (1 / (((i + 1) ** (1)) * (np.trace(A) + 1)))
-        H1 -= step_size * grad 
-        if nonnegativity:
-            H1 = np.maximum(H1, 0)  # nonnegativity constraint
-        i = i + 1
-    return H1
-
-def ALS(X,
-        n_components = 10, # number of columns in the dictionary matrix W
-        n_iter=100,
-        a0 = 0, # L1 regularizer for H
-        a1 = 0, # L1 regularizer for W
-        a12 = 0, # L2 regularizer for W
-        H_nonnegativity=True,
-        W_nonnegativity=True,
-        compute_recons_error=False,
-        subsample_ratio = 10):
-    
-        '''
-        Given data matrix X, use alternating least squares to find factors W,H so that 
-                                || X - WH ||_{F}^2 + a0*|H|_{1} + a1*|W|_{1} + a12 * |W|_{F}^{2}
-        is minimized (at least locally)
-        '''
-        
-        d, n = X.shape
-        r = n_components
-        
-        #normalization = np.linalg.norm(X.reshape(-1,1),1)/np.product(X.shape) # avg entry of X
-        #print('!!! avg entry of X', normalization)
-        #X = X/normalization
-
-        # Initialize factors 
-        W = np.random.rand(d,r)
-        H = np.random.rand(r,n) 
-        # H = H * np.linalg.norm(X) / np.linalg.norm(H)
-        for i in trange(n_iter):
-            #H = coding_within_radius(X, W.copy(), H.copy(), a1=a0, nonnegativity=H_nonnegativity, subsample_ratio=subsample_ratio)
-            #W = coding_within_radius(X.T, H.copy().T, W.copy().T, a1=a1, a2=a12, nonnegativity=W_nonnegativity, subsample_ratio=subsample_ratio).T
-            H = coding(X, W.copy(), H.copy(), a1=a0, nonnegativity=H_nonnegativity, subsample_ratio=subsample_ratio)
-            W = coding(X.T, H.copy().T, W.copy().T, a1=a1, a2=a12, nonnegativity=W_nonnegativity, subsample_ratio=subsample_ratio).T
-            W /= np.linalg.norm(W)
-            if compute_recons_error and (i % 10 == 0) :
-                print('iteration %i, reconstruction error %f' % (i, np.linalg.norm(X-W@H)**2))
-        return W, H
 
 
 WSD = pd.read_csv('GHM_Dict_Data_AllStates.csv')
@@ -280,6 +191,8 @@ Reg_Coeff_List = []
 for i in range(Num_Iter_Pick):
     X = np.array(WSD.iloc[:,7:(279+i*16)])
     Y = np.array(WSD['label'])
+    Feat_Shape_Edge = 16
+    Feat_Shape_Phase= int(len(X[0])/16) - 16
     Feat_Shape = int(len(X[0])/16)
     under_sampler = RandomUnderSampler(random_state=42)
     X_res, y_res = under_sampler.fit_resample(X, Y)
@@ -339,6 +252,7 @@ for i in range(Num_Iter_Pick):
     Y_Test_SNMF = Result_Dict['Y_test']
     Y_Pred_SNMF = Result_Dict['Y_pred']
     W_Dict = Result_Dict['loading']
+    H = Result_Dict['code']
     Sample_Row_Num = math.isqrt(len(W_Dict[0])) ** 2
     Sample_Reg_Num = math.isqrt(len(W_Dict[1])) ** 2
     Reg_Coeff_List.extend(W_Dict[1])
@@ -351,7 +265,8 @@ for i in range(Num_Iter_Pick):
     sb.heatmap(Reg_Coeff_List, cmap="icefire", ax=ax2, cbar=False)
     fig.colorbar(ax2.collections[0], ax=ax2,location="left", use_gridspec=False, pad=0.2)
     plt.show()
-    Display_Class.display_dictionary(title = 'SNMF_WS_Adj_States', dictionary_shape = (Feat_Shape, 16), W = W_Dict[0], figsize=[10,10])
+    print(W_Dict[0].shape[1])
+    Display_Class.display_dictionary_WPhase(title = 'SNMF_WS_Adj_States', dictionary_shape = (Feat_Shape, 16), W = W_Dict[0], figsize=[10,10], W_sep_pos = 256)
     Accuracy_SNMF_All[i] = Result_Dict['Accuracy']
     # conf_matrix_RF = confusion_matrix(y_true = Y_Test_SNMF[0,:], y_pred = Y_Pred_SNMF)
     # disp = ConfusionMatrixDisplay(confusion_matrix=conf_matrix,
