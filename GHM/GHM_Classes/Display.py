@@ -4,13 +4,14 @@ Created on Tue Aug 16 12:49:56 2022
 
 @author: Bryan
 """
+import math
 import pandas as pd
 import numpy as np
 import networkx as nx
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 import warnings
-from NNetwork import NNetwork as nn
+from NNetwork_master.src.NNetwork import NNetwork as nn
 warnings.filterwarnings("ignore")
 
 class Display:
@@ -72,8 +73,12 @@ class Display:
             fig.savefig(save_path, bbox_inches='tight')
             
             
-    def display_dictionary(self, title, W, save_name=None, score=None, grid_shape=None, figsize=[10,10]):
+    def display_dictionary(self, title, W, dictionary_shape = None, save_name=None, score=None, grid_shape=None, figsize=[10,10]):
         k = int(np.sqrt(W.shape[0]))
+        if dictionary_shape == None:
+            dict_shape = (k,k)
+        else:
+            dict_shape = dictionary_shape
         rows = int(np.sqrt(W.shape[1]))
         cols = int(np.sqrt(W.shape[1]))
         if grid_shape is not None:
@@ -94,11 +99,11 @@ class Display:
                 idx = np.argsort(score)
                 idx = np.flip(idx)    
                 
-                ax.imshow(W.T[idx[i]].reshape(k, k), cmap="viridis", interpolation='nearest')
+                ax.imshow(W.T[idx[i]].reshape(dict_shape), cmap="viridis", interpolation='nearest')
                 ax.set_xlabel('%1.2f' % score[i], fontsize=13)  # get the largest first
                 ax.xaxis.set_label_coords(0.5, -0.05)
             else: 
-                ax.imshow(W.T[i].reshape(k, k), cmap="viridis", interpolation='nearest')
+                ax.imshow(W.T[i].reshape(dict_shape), cmap="viridis", interpolation='nearest')
                 if score is not None:
                     ax.set_xlabel('%1.2f' % score[i], fontsize=13)  # get the largest first
                     ax.xaxis.set_label_coords(0.5, -0.05)
@@ -112,6 +117,66 @@ class Display:
             plt.savefig( save_name, bbox_inches='tight')
         plt.show()
         
+    def display_dictionary_WPhase(self, title, W, dictionary_shape = None, save_name=None, score=None, grid_shape=None, figsize=[10,10], W_sep_pos = None, At = None):
+        if W_sep_pos is not None:
+            W_Edge = W[:W_sep_pos]
+            W_Phase = W[W_sep_pos:]
+        else:
+            W_Edge = W
+        k = int(np.sqrt(W_Edge.shape[0]))
+        if dictionary_shape == None:
+            dict_shape = (k,k)
+        else:
+            dict_shape1 = (dictionary_shape[1],dictionary_shape[1])
+            dict_shape2 = (dictionary_shape[0] - dictionary_shape[1],dictionary_shape[1])
+        rows = int(np.sqrt(W_Edge.shape[1]))*2
+        cols = int(np.sqrt(W_Edge.shape[1]))
+        if grid_shape is not None:
+            rows = grid_shape[0]
+            cols = grid_shape[1]
+            
+        if At is not None:
+            importance = np.sqrt(At.diagonal()) / sum(np.sqrt(At.diagonal()))
+            idx = np.argsort(importance)
+            idx = np.flip(idx)
+            
+        figsize0=figsize
+        if (score is None) and (grid_shape is not None):
+            figsize0=(cols, rows)
+        if (score is not None) and (grid_shape is not None):
+            figsize0=(cols, rows+0.2)
+        
+        fig, axs = plt.subplots(nrows=rows, ncols=cols, figsize=figsize0,
+                                subplot_kw={'xticks': [], 'yticks': []})
+            
+        for ax, i in zip(axs.flat, range(W.shape[0])):
+            print(i)
+            Row_Pos = i // 3
+            Col_Pos = i % 3
+            if score is not None:
+                idx = np.argsort(score)
+                idx = np.flip(idx)    
+                
+                ax.imshow(W_Edge.T[idx[i]].reshape(dict_shape), cmap="viridis", interpolation='nearest')
+                ax.set_xlabel('%1.2f' % score[i], fontsize=13)  # get the largest first
+                ax.xaxis.set_label_coords(0.5, -0.05)
+            else: 
+                if (Row_Pos % 2 == 0):
+                    ax.imshow(W_Edge.T[int(i/2)].reshape(dict_shape1), cmap="viridis", interpolation='nearest')
+                else:
+                    ax.imshow(W_Phase.T[math.floor(i/2)].reshape(dict_shape2), cmap="viridis", interpolation='nearest')
+                if score is not None:
+                    ax.set_xlabel('%1.2f' % score[i], fontsize=13)  # get the largest first
+                    ax.xaxis.set_label_coords(0.5, -0.05)
+           
+        plt.tight_layout()
+        # plt.suptitle('Dictionary learned from patches of size %d' % k, fontsize=16)
+        plt.suptitle(title, fontsize=15)
+        plt.subplots_adjust(0.08, 0.02, 0.92, 0.85, 0.08, 0.23)
+        
+        if save_name is not None:
+            plt.savefig( save_name, bbox_inches='tight')
+        plt.show()
         
     def display_dict_and_graph(self, title=None,
                              save_path=None,
@@ -199,7 +264,7 @@ class Display:
             fig.savefig(save_path, bbox_inches='tight')
             
             
-    def plot_adj_to_graph_deg(self, W_True, W_False, n, weighted, filename=None):
+    def plot_adj_to_graph_deg(self, W_True, W_False, n, weighted, filename=None, title=None):
         Subhraph_Col_Num = n
         Subhraph_Row_Num = int(np.ceil(n/2))
         fig, axs = plt.subplots(ncols=Subhraph_Col_Num, nrows=Subhraph_Row_Num, figsize=(Subhraph_Col_Num*5, Subhraph_Row_Num*5))
@@ -256,6 +321,8 @@ class Display:
                 axs[(i//4)*2,i%4+4].title.set_text('Non-Synchronizing')
                 deg_seq = sorted((d for n, d in G.degree()), reverse=True)
                 axs[(i//4)*2+1,i%4+4].plot(deg_seq, "b-", marker="o")
+            if title is not None:
+                plt.suptitle(title, fontsize=25)
             if filename != None:
                 fig.savefig(filename)
             plt.show()
