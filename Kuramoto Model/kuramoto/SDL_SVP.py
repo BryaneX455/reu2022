@@ -20,10 +20,6 @@ from sklearn.linear_model import LogisticRegression
 from scipy.linalg import block_diag
 from sklearn.decomposition import TruncatedSVD
 
-
-
-
-
 DEBUG = False
 
 

@@ -126,7 +126,9 @@ def display_dict_and_graph(title=None,
                              grid_shape=None,
                              fig_size=[10,10],
                              W = None,
+                             regression_coeff = None,
                              At = None,
+                             weight_graph = 100,
                              plot_graph_only=False,
                              show_importance=False):
         n_components = W.shape[1]
@@ -177,6 +179,7 @@ def display_dict_and_graph(title=None,
                     a = i // cols
                     b = i % cols
                     ax = fig.add_subplot(inner_grid[a, b])
+                    ax.set_title(str(np.round(regression_coeff[i+1], 8)))
                     k = int(np.sqrt(W.shape[0]))
                     A_sub = W[:,idx[i]].reshape(k,k)
                     H = nx.from_numpy_matrix(A_sub)
@@ -193,7 +196,7 @@ def display_dict_and_graph(title=None,
                     pos = nx.spring_layout(G1)
                     edges = G1.edges()
                     colors = [G1[u][v]['color'] for u,v in edges]
-                    weights = [100*G1[u][v]['weight'] for u,v in edges]
+                    weights = [weight_graph*G1[u][v]['weight'] for u,v in edges]
                     nx.draw(G1, with_labels=False, node_size=20, ax=ax, width=weights, edge_color=colors, label='Graph')
                     
                     ## Fix this
