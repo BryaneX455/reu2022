@@ -32,9 +32,7 @@ from GHM_Classes.Display import Display
 from GHM_Classes.NMF import NMF
 
 
-# from yellowbrick.datasets import load_occupancy
-# from yellowbrick.model_selection import FeatureImportances
-# from karateclub import Graph2Vec
+
 warnings.filterwarnings("ignore")
 Display_Class = Display()
 NMF_Class = NMF()
@@ -95,15 +93,8 @@ Y_Test_SNMF_Edge = Result_Dict_Edge['Y_test']
 Y_Pred_SNMF_Edge = Result_Dict_Edge['Y_pred']
 W_Dict_Edge = Result_Dict_Edge['loading']
 H_Edge = Result_Dict_Edge['code']
-print(H_Edge.shape)
-fig, (ax,ax2) = plt.subplots(nrows=2)
-fig.subplots_adjust(hspace = 0.4)
-sb.heatmap(W_Dict_Edge[0], cmap="rocket", ax=ax, cbar=False)
-ax.set_title('rank-10 dictionary heatmap')
-fig.colorbar(ax.collections[0], ax=ax,location="left", use_gridspec=False, pad=0.2)
-sb.heatmap(W_Dict_Edge[1], cmap="icefire", ax=ax2, cbar=False)
-ax2.set_title('Regression Coefficient')
-fig.colorbar(ax2.collections[0], ax=ax2,location="left", use_gridspec=False, pad=0.2)
+sb.heatmap(W_Dict_Edge[1], cmap="icefire", cbar=False)
+plt.colorbar()
 plt.show()
 Display_Class.display_dictionary(title = 'SNMF_WS_Adj', dictionary_shape = None, W = W_Dict_Edge[0], figsize=[10,10])
 #display_dict_and_graph(W=W_Dict_Edge[0], At = np.dot(H_Edge, H_Edge.T), fig_size=[20,10], show_importance=True)
@@ -256,14 +247,8 @@ for i in range(Num_Iter_Pick):
     Sample_Row_Num = math.isqrt(len(W_Dict[0])) ** 2
     Sample_Reg_Num = math.isqrt(len(W_Dict[1])) ** 2
     Reg_Coeff_List.extend(W_Dict[1])
-    print(W_Dict[1])
-    print(Reg_Coeff_List)
-    fig, (ax,ax2) = plt.subplots(nrows=2)
-    fig.subplots_adjust(hspace=0.4)
-    sb.heatmap(W_Dict[0], cmap="rocket", ax=ax, cbar=False)
-    fig.colorbar(ax.collections[0], ax=ax,location="left", use_gridspec=False, pad=0.2)
-    sb.heatmap(Reg_Coeff_List, cmap="icefire", ax=ax2, cbar=False)
-    fig.colorbar(ax2.collections[0], ax=ax2,location="left", use_gridspec=False, pad=0.2)
+    sb.heatmap(Reg_Coeff_List, cmap="icefire", cbar=False)
+    plt.colorbar()
     plt.show()
     print(W_Dict[0].shape[1])
     Display_Class.display_dictionary_WPhase(title = 'SNMF_WS_Adj_States', dictionary_shape = (Feat_Shape, 16), W = W_Dict[0], figsize=[10,10], W_sep_pos = 256)
