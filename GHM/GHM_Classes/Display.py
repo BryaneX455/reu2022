@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 import warnings
 from NNetwork_master.src.NNetwork import NNetwork as nn
+from tqdm import trange
 warnings.filterwarnings("ignore")
 
 class Display:
@@ -328,3 +329,149 @@ class Display:
             plt.show()
             
         print(deg_seq)
+        
+        
+    def top_dictionaries_display(self, motif_sizes=[6, 11, 21, 51],
+                             latent_motif_rank_list=[1,2],
+                             fig_size=[15,8],
+                             plot_graph=True):
+        directory_network_files = "Data/Networks_all_NDL/"
+        save_folder = "Network_dictionary/NDL_inj_dictionary_k_all1"
+        list_network_files = ['COVID_PPI.txt',
+                              'facebook_combined.txt',
+                              'arxiv.txt',
+                              'node2vec_homosapiens_PPI.txt',
+                              'Caltech36.txt',
+                              'MIT8.txt',
+                              'UCLA26.txt',
+                              'Harvard1.txt',
+                              'true_edgelist_for_ER_5000_mean_degree_50.txt',
+                              'true_edgelist_for_ER_5000_mean_degree_100.txt',
+                              'true_edgelist_for_SW_5000_k_50_p_0.05.txt',
+                              'true_edgelist_for_SW_5000_k_50_p_0.1.txt',
+                              'true_edgelist_for_BA_5000_m_25.txt',
+                              'true_edgelist_for_BA_5000_m_50.txt',
+                              'SBM1.txt',
+                              'SBM2.txt']
+    
+        nrows = len(motif_sizes)
+        ncols = len(list_network_files)
+        fig = plt.figure(figsize=fig_size, constrained_layout=False)
+        n_components = 25
+        # Make outer gridspec.
+        outer_grid = gridspec.GridSpec(nrows=nrows, ncols=ncols, wspace=0, hspace=0)
+        for row in trange(nrows):
+            for col in range(ncols):
+                if not ((motif_sizes[row] > 100) and (list_network_files[col] in ['COVID_PPI.txt'])):
+                    if not ((motif_sizes[row] > 60) and (list_network_files[col] in ['SBM1.txt'])):
+                        ### Load results file
+                        ntwk = list_network_files[col]
+                        network_name = ntwk.replace('.txt', '')
+                        network_name = network_name.replace('.', '')
+                        path = save_folder + '/full_result_' + str(network_name) + "_k_" + str(motif_sizes[row]) + "_r_" + str(
+                            n_components) + ".npy"
+                        result_dict = np.load(path, allow_pickle=True).item()
+                        W = result_dict.get('Dictionary learned')
+                        At = result_dict.get('Code COV learned')
+                        k = result_dict.get('Motif size')
+    
+                # Add plot labels and remove remainder of axis.
+                ax_outer = fig.add_subplot(outer_grid[row * ncols + col])
+                if col == 0:
+                    ax_outer.set_ylabel('$k$ = ' + str(motif_sizes[row]), fontsize=14)
+                    ax_outer.yaxis.set_label_position('left')
+    
+                if row == 0:
+                    if network_name == 'true_edgelist_for_SW_5000_k_50_p_005':
+                        ntwk_label = '$\\textsc{\\texttt{WS}}_{1}$'
+                    if network_name == 'true_edgelist_for_SW_5000_k_50_p_01':
+                        ntwk_label = '$\\textsc{\\texttt{WS}}_{2}$'
+                    if network_name == 'true_edgelist_for_ER_5000_mean_degree_50':
+                        ntwk_label = '$\\textsc{\\texttt{ER}}_{1}$'
+                    if network_name == 'true_edgelist_for_ER_5000_mean_degree_100':
+                        ntwk_label = '$\\textsc{\\texttt{ER}}_{2}$'
+                    if network_name == 'true_edgelist_for_BA_5000_m_25':
+                        ntwk_label = '$\\textsc{\\texttt{BA}}_{1}$'
+                    if network_name == 'true_edgelist_for_BA_5000_m_50':
+                        ntwk_label = '$\\textsc{\\texttt{BA}}_{2}$'
+                    if network_name == 'Caltech36':
+                        ntwk_label = '$\\textsc{\\texttt{Caltech}}$'
+                    if network_name == 'MIT8':
+                        ntwk_label = '$\\textsc{\\texttt{MIT}}$'
+                    if network_name == 'UCLA26':
+                        ntwk_label = '$\\textsc{\\texttt{UCLA}}$'
+                    if network_name == 'Harvard1':
+                        ntwk_label = '$\\textsc{\\texttt{Harvard}}$'
+                    if network_name == 'COVID_PPI':
+                        ntwk_label = '$\\textsc{\\texttt{Coronavirus  }}$'
+                    if network_name == 'facebook_combined':
+                        ntwk_label = '$\\textsc{\\texttt{SNAP FB}}$'
+                    if network_name == 'arxiv':
+                        ntwk_label = '$\\textsc{\\texttt{arXiv}}$'
+                    if network_name == 'node2vec_homosapiens_PPI':
+                        ntwk_label = '$\\textsc{\\texttt{H. sapiens}}$'
+                    if network_name == 'SBM1':
+                        ntwk_label = '$\\textsc{\\texttt{SBM}}_{1}$'
+                    if network_name == 'SBM2':
+                        ntwk_label = '$\\textsc{\\texttt{SBM}}_{2}$'
+    
+    
+                    ax_outer.set_title(str(ntwk_label), fontsize=12)
+    
+                ax_outer.axes.xaxis.set_ticks([])
+                ax_outer.axes.yaxis.set_ticks([])
+    
+                ### Use the code covariance matrix At to compute importance
+                importance = np.sqrt(At.diagonal()) / sum(np.sqrt(At.diagonal()))
+                idx = np.argsort(importance)
+                idx = np.flip(idx)
+    
+                ### Add subplot
+                inner_grid = outer_grid[row, col].subgridspec(len(latent_motif_rank_list), 1, wspace=0.1, hspace=0.1)
+    
+                if not ((motif_sizes[row] > 100) and (list_network_files[col] in ['COVID_PPI.txt'])):
+                    if not ((motif_sizes[row] > 60) and (list_network_files[col] in ['SBM1.txt'])):
+                        for j in np.arange(len(latent_motif_rank_list)):
+                            motif_rank = latent_motif_rank_list[j]
+    
+    
+                            ax = fig.add_subplot(inner_grid[j, 0])
+                            A_sub = W.T[idx[motif_rank - 1]].reshape(k, k)
+                            if not plot_graph:
+                                ax.imshow(W.T[idx[motif_rank - 1]].reshape(k, k), cmap="gray_r", interpolation='nearest')
+                            else:
+                                H = nx.from_numpy_matrix(A_sub)
+                                G1 = nx.Graph()
+                                for a in np.arange(k):
+                                    for b in np.arange(k):
+                                        u = list(H.nodes())[a]
+                                        v = list(H.nodes())[b]
+                                        if H.has_edge(u,v):
+                                            if np.abs(a-b) == 1:
+                                                G1.add_edge(u,v, color='r', weight=A_sub[a,b])
+                                            else:
+                                                G1.add_edge(u,v, color='b', weight=A_sub[a,b])
+    
+                                pos = nx.spring_layout(G1)
+                                edges = G1.edges()
+                                colors = [G1[u][v]['color'] for u,v in edges]
+                                weights = [5*G1[u][v]['weight'] for u,v in edges]
+                                if motif_sizes[row] in range(10,20):
+                                    weights = [7*G1[u][v]['weight'] for u,v in edges]
+                                if motif_sizes[row] in range(20,100):
+                                    weights = [10*G1[u][v]['weight'] for u,v in edges]
+    
+    
+                                if network_name == "COVID_PPI" and motif_sizes[row] > 20:
+                                    weights = [(5/(motif_sizes[row]+20)) *G1[u][v]['weight'] for u,v in edges]
+    
+                                node_size=70/motif_sizes[row]
+                                nx.draw(G1, with_labels=False, node_size=node_size, ax=ax, width=weights, edge_color=colors, label='Graph')
+    
+                # ax.set_xlabel('%1.2f' % importance[idx[i]], fontsize=10)  # get the largest first
+                # ax.xaxis.set_label_coords(0.5, -0.05)  # adjust location of importance appearing beneath patches
+                ax.set_xticks([])
+                ax.set_yticks([])
+    
+        fig.subplots_adjust(left=0.05, bottom=0.05, right=0.95, top=0.9, wspace=0.1, hspace=0.1)
+        fig.savefig(save_folder + '/top_latent_motifs' + '.png', bbox_inches='tight', dpi=300)
