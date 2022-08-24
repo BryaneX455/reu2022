@@ -27,8 +27,9 @@ def generate_nxg(X):
     
     return graph_list
 
-def GHM_Adj_Color_Diff(G_Num, Graph_List, Node_Num, Kap, ItNum):
+def GHM_Adj_Color_Diff(G_Num, Graph_List, Node_Num, Kap, ItNum, title):
     fig, axs = plt.subplots(8,G_Num,figsize = (25,15))
+    BaseName = ' Colored Adj Matrix'
     N = 0
     for G in Graph_List:
         s = np.random.randint(5, size=1*Node_Num)
@@ -56,6 +57,7 @@ def GHM_Adj_Color_Diff(G_Num, Graph_List, Node_Num, Kap, ItNum):
             sb.heatmap(Full_Mat[10][:][:], ax = axs[6,N])
             sb.heatmap(Full_Mat[25][:][:], ax = axs[7,N])
         N+=1
+    fig.suptitle(title+BaseName, fontsize = 40)
     plt.show()
     fig.subplots_adjust(wspace=0.5)
     fig.subplots_adjust(hspace=0.5)
@@ -63,7 +65,7 @@ def GHM_Adj_Color_Diff(G_Num, Graph_List, Node_Num, Kap, ItNum):
     return
 
 sampling_alg = 'pivot'
-
+# UCLA26
 ntwk = 'UCLA26' # COVID_PPI, Wisconsin87, Caltech36
 ntwk_nonumber = ''.join([i for i in ntwk if not i.isdigit()])
 k=50
@@ -77,4 +79,54 @@ G.load_add_edges(path, increment_weights=False, use_genfromtxt=True)
 X, embs = G.get_patches(k=k, sample_size=G_Num, skip_folded_hom=True)
 graph_list = generate_nxg(X)
 
-GHM_Adj_Color_Diff(G_Num, graph_list, k, Kap, ItNum)
+GHM_Adj_Color_Diff(G_Num, graph_list, k, Kap, ItNum, ntwk)
+
+# Caltech36
+ntwk = 'Caltech36' # COVID_PPI, Wisconsin87, Caltech36
+ntwk_nonumber = ''.join([i for i in ntwk if not i.isdigit()])
+k=50
+
+path = str(ntwk) + '.txt'
+G = nn.NNetwork()
+G.load_add_edges(path, increment_weights=False, use_genfromtxt=True)
+#print('num nodes in G', len(G.nodes()))
+#print('num edges in G', len(G.get_edges()))
+
+X, embs = G.get_patches(k=k, sample_size=G_Num, skip_folded_hom=True)
+graph_list = generate_nxg(X)
+
+GHM_Adj_Color_Diff(G_Num, graph_list, k, Kap, ItNum, ntwk)
+
+
+
+# Wisconsin87
+ntwk = 'Wisconsin87' # COVID_PPI, Wisconsin87, Caltech36
+ntwk_nonumber = ''.join([i for i in ntwk if not i.isdigit()])
+k=50
+
+path = str(ntwk) + '.txt'
+G = nn.NNetwork()
+G.load_add_edges(path, increment_weights=False, use_genfromtxt=True)
+#print('num nodes in G', len(G.nodes()))
+#print('num edges in G', len(G.get_edges()))
+
+X, embs = G.get_patches(k=k, sample_size=G_Num, skip_folded_hom=True)
+graph_list = generate_nxg(X)
+
+GHM_Adj_Color_Diff(G_Num, graph_list, k, Kap, ItNum, ntwk)
+
+# Harvard1
+ntwk = 'Harvard1' # COVID_PPI, Wisconsin87, Caltech36
+ntwk_nonumber = ''.join([i for i in ntwk if not i.isdigit()])
+k=50
+
+path = str(ntwk) + '.txt'
+G = nn.NNetwork()
+G.load_add_edges(path, increment_weights=False, use_genfromtxt=True)
+#print('num nodes in G', len(G.nodes()))
+#print('num edges in G', len(G.get_edges()))
+
+X, embs = G.get_patches(k=k, sample_size=G_Num, skip_folded_hom=True)
+graph_list = generate_nxg(X)
+
+GHM_Adj_Color_Diff(G_Num, graph_list, k, Kap, ItNum, ntwk)
