@@ -223,7 +223,7 @@ class Display:
                     a = i // cols
                     b = i % cols
                     ax = fig.add_subplot(inner_grid[a, b])
-                    ax.imshow(W.T[idx[i]].reshape(k, k), cmap="gray_r", interpolation='nearest')
+                    ax.imshow(W.T[idx[i]].reshape((k,k)), cmap="gray_r", interpolation='nearest')
                     # ax.set_xlabel('%1.2f' % importance[idx[i]], fontsize=13)  # get the largest first
                     # ax.xaxis.set_label_coords(0.5, -0.05)  # adjust location of importance appearing beneath patches
                     ax.set_xticks([])
@@ -236,7 +236,8 @@ class Display:
                     b = i % cols
                     ax = fig.add_subplot(inner_grid[a, b])
                     k = int(np.sqrt(W.shape[0]))
-                    A_sub = W[:,idx[i]].reshape(k,k)
+                    print(i)
+                    A_sub = W[:,idx[i]].reshape((k,k))
                     H = nx.from_numpy_matrix(A_sub)
                     G1 = nx.Graph()
                     for a in np.arange(k):
