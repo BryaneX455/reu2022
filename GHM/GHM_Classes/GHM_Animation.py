@@ -20,7 +20,7 @@ class GHM_Animation:
         self.Kap = Kap
         self.ItNum = ItNum
         
-    def animate_GHM2D(self):
+    def Animate_GHM2D(self):
         """Implements 2D Greenberg Hasting Model Animation
     
         Args:
