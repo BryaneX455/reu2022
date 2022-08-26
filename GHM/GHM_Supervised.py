@@ -98,7 +98,6 @@ print(H_Edge.shape)
 sb.heatmap(W_Dict_Edge[1], cmap="icefire", cbar=False)
 plt.show()
 Display_Class.display_dictionary(title = 'SNMF_WS_Adj', dictionary_shape = None, W = W_Dict_Edge[0], figsize=[10,10])
-Display_Class.display_dict_and_graph(W=W_Dict_Edge[0], At = np.dot(H_Edge, H_Edge.T), fig_size=[20,10], show_importance=True)
 Accuracy_SNMF_Edge = Result_Dict_Edge['Accuracy']
 print(Accuracy_SNMF_Edge)
 

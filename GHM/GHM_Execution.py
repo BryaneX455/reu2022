@@ -58,6 +58,7 @@ Node_Num_Max = 35
 num_samples = 25
 NodeNum_List = []
 Average_Sync_List = []
+Ave_Graph_Den_List = []
 for i in range(Node_Num_Min, Node_Num_Max):
     NodeNum_List.append(Node_Num_Min+i)
 
@@ -70,17 +71,24 @@ for i in range(len(NodeNum_List)):
     X, embs = G.get_patches(k=k, sample_size=num_samples, skip_folded_hom=True)
     graph_list = Data_Gen_Class.generate_nxg(X)
     Total_Sync = 0
+    Graph_Den = 0
     for G in graph_list:
+        Graph_Den += nx.density(G)
         s = np.random.randint(5, size=1*k)
         GHM_Class = GHM(G=G, S=s, Kap=Kap, ItNum=ItNum)
         state, label = GHM_Class.GHM1D()
         if label:
             Total_Sync += 1
+    Average_Den = Graph_Den/num_samples
+    Ave_Graph_Den_List.append(Average_Den)
     Average_Sync_Perc =  Total_Sync/num_samples
     Average_Sync_List.append(Average_Sync_Perc)
-print(Average_Sync_List)
+plt.plot(Ave_Graph_Den_List)
 plt.plot(Average_Sync_List)
-plt.title('Average Sync Percentage for 25-sample 5-35-Nodes UCLA')
+plt.xlabel('Node Number')
+plt.ylabel('Synchronizing Ratio')
+plt.title('Average Sync Percentage and Graph Density for 25-sample 5-35-Nodes UCLA')
+plt.legend(['Density','Sync'])
 plt.show()
 
 
@@ -94,6 +102,7 @@ Node_Num_Max = 35
 num_samples = 25
 NodeNum_List = []
 Average_Sync_List = []
+Ave_Graph_Den_List = []
 for i in range(Node_Num_Min, Node_Num_Max):
     NodeNum_List.append(Node_Num_Min+i)
 
@@ -106,17 +115,22 @@ for i in range(len(NodeNum_List)):
     X, embs = G.get_patches(k=k, sample_size=num_samples, skip_folded_hom=True)
     graph_list = Data_Gen_Class.generate_nxg(X)
     Total_Sync = 0
+    Graph_Den = 0
     for G in graph_list:
+        Graph_Den += nx.density(G)
         s = np.random.randint(5, size=1*k)
         GHM_Class = GHM(G=G, S=s, Kap=Kap, ItNum=ItNum)
         state, label = GHM_Class.GHM1D()
         if label:
             Total_Sync += 1
+    Average_Den = Graph_Den/num_samples
+    Ave_Graph_Den_List.append(Average_Den)
     Average_Sync_Perc =  Total_Sync/num_samples
     Average_Sync_List.append(Average_Sync_Perc)
-print(Average_Sync_List)
+plt.plot(Ave_Graph_Den_List)
 plt.plot(Average_Sync_List)
-plt.title('Average Sync Percentage for 25-sample 5-35-Nodes Caltech')
+plt.title('Average Sync Percentage and Graph Density for 25-sample 5-35-Nodes Caltech')
+plt.legend(['Density','Sync'])
 plt.show()
 
 
@@ -130,6 +144,7 @@ Node_Num_Max = 35
 num_samples = 25
 NodeNum_List = []
 Average_Sync_List = []
+Ave_Graph_Den_List = []
 for i in range(Node_Num_Min, Node_Num_Max):
     NodeNum_List.append(Node_Num_Min+i)
 
@@ -142,17 +157,23 @@ for i in range(len(NodeNum_List)):
     X, embs = G.get_patches(k=k, sample_size=num_samples, skip_folded_hom=True)
     graph_list = Data_Gen_Class.generate_nxg(X)
     Total_Sync = 0
+    Graph_Den = 0
     for G in graph_list:
+        Graph_Den += nx.density(G)
         s = np.random.randint(5, size=1*k)
         GHM_Class = GHM(G=G, S=s, Kap=Kap, ItNum=ItNum)
         state, label = GHM_Class.GHM1D()
         if label:
             Total_Sync += 1
+    Average_Den = Graph_Den/num_samples
+    Ave_Graph_Den_List.append(Average_Den)
     Average_Sync_Perc =  Total_Sync/num_samples
     Average_Sync_List.append(Average_Sync_Perc)
-print(Average_Sync_List)
+plt.plot(Ave_Graph_Den_List)
 plt.plot(Average_Sync_List)
-plt.title('Average Sync Percentage for 25-sample 5-35-Nodes Wisconsin')
+d
+plt.title('Average Sync Percentage and Graph Density for 25-sample 5-35-Nodes Wisconsin')
+plt.legend(['Density','Sync'])
 plt.show()
 
 """Harvard graph with different number of nodes"""
@@ -165,6 +186,7 @@ Node_Num_Max = 35
 num_samples = 25
 NodeNum_List = []
 Average_Sync_List = []
+Ave_Graph_Den_List = []
 for i in range(Node_Num_Min, Node_Num_Max):
     NodeNum_List.append(Node_Num_Min+i)
 
@@ -177,17 +199,22 @@ for i in range(len(NodeNum_List)):
     X, embs = G.get_patches(k=k, sample_size=num_samples, skip_folded_hom=True)
     graph_list = Data_Gen_Class.generate_nxg(X)
     Total_Sync = 0
+    Graph_Den = 0
     for G in graph_list:
+        Graph_Den += nx.density(G)
         s = np.random.randint(5, size=1*k)
         GHM_Class = GHM(G=G, S=s, Kap=Kap, ItNum=ItNum)
         state, label = GHM_Class.GHM1D()
         if label:
             Total_Sync += 1
+    Average_Den = Graph_Den/num_samples
+    Ave_Graph_Den_List.append(Average_Den)
     Average_Sync_Perc =  Total_Sync/num_samples
     Average_Sync_List.append(Average_Sync_Perc)
-print(Average_Sync_List)
+plt.plot(Ave_Graph_Den_List)
 plt.plot(Average_Sync_List)
-plt.title('Average Sync Percentage for 25-sample 5-35-Nodes Harvard')
+plt.title('Average Sync Percentage and Graph Density for 25-sample 5-35-Nodes Harvard')
+plt.legend(['Density','Sync'])
 plt.show()
 
 
