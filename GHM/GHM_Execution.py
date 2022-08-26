@@ -48,9 +48,9 @@ GHM_Animation_Class.Animate_GHM2D()
 """
 
 
-"""UCLA graph with different number of nodes"""
+"""Graph with different number of nodes"""
 sampling_alg = 'pivot'
-
+ntwk_list = ['UCLA26','Caltech36','Wisconsin87','Harvard1']
 ntwk = 'UCLA26' # COVID_PPI, Wisconsin87, Caltech36
 ntwk_nonumber = ''.join([i for i in ntwk if not i.isdigit()])
 Node_Num_Min = 5
@@ -58,7 +58,6 @@ Node_Num_Max = 35
 num_samples = 25
 NodeNum_List = []
 Average_Sync_List = []
-Ave_Graph_Den_List = []
 for i in range(Node_Num_Min, Node_Num_Max):
     NodeNum_List.append(Node_Num_Min+i)
 
@@ -71,24 +70,18 @@ for i in range(len(NodeNum_List)):
     X, embs = G.get_patches(k=k, sample_size=num_samples, skip_folded_hom=True)
     graph_list = Data_Gen_Class.generate_nxg(X)
     Total_Sync = 0
-    Graph_Den = 0
     for G in graph_list:
-        Graph_Den += nx.density(G)
         s = np.random.randint(5, size=1*k)
         GHM_Class = GHM(G=G, S=s, Kap=Kap, ItNum=ItNum)
         state, label = GHM_Class.GHM1D()
         if label:
             Total_Sync += 1
-    Average_Den = Graph_Den/num_samples
-    Ave_Graph_Den_List.append(Average_Den)
     Average_Sync_Perc =  Total_Sync/num_samples
     Average_Sync_List.append(Average_Sync_Perc)
-plt.plot(Ave_Graph_Den_List)
 plt.plot(Average_Sync_List)
 plt.xlabel('Node Number')
 plt.ylabel('Synchronizing Ratio')
-plt.title('Average Sync Percentage and Graph Density for 25-sample 5-35-Nodes UCLA')
-plt.legend(['Density','Sync'])
+plt.title('Average Sync Percentage for 25-sample 5-35 Nodes UCLA')
 plt.show()
 
 
@@ -102,7 +95,6 @@ Node_Num_Max = 35
 num_samples = 25
 NodeNum_List = []
 Average_Sync_List = []
-Ave_Graph_Den_List = []
 for i in range(Node_Num_Min, Node_Num_Max):
     NodeNum_List.append(Node_Num_Min+i)
 
@@ -115,22 +107,18 @@ for i in range(len(NodeNum_List)):
     X, embs = G.get_patches(k=k, sample_size=num_samples, skip_folded_hom=True)
     graph_list = Data_Gen_Class.generate_nxg(X)
     Total_Sync = 0
-    Graph_Den = 0
     for G in graph_list:
-        Graph_Den += nx.density(G)
         s = np.random.randint(5, size=1*k)
         GHM_Class = GHM(G=G, S=s, Kap=Kap, ItNum=ItNum)
         state, label = GHM_Class.GHM1D()
         if label:
             Total_Sync += 1
-    Average_Den = Graph_Den/num_samples
-    Ave_Graph_Den_List.append(Average_Den)
     Average_Sync_Perc =  Total_Sync/num_samples
     Average_Sync_List.append(Average_Sync_Perc)
-plt.plot(Ave_Graph_Den_List)
 plt.plot(Average_Sync_List)
-plt.title('Average Sync Percentage and Graph Density for 25-sample 5-35-Nodes Caltech')
-plt.legend(['Density','Sync'])
+plt.xlabel('Node Number')
+plt.ylabel('Synchronizing Ratio')
+plt.title('Average Sync Percentage for 25-sample 5-35 Nodes UCLA')
 plt.show()
 
 
@@ -144,7 +132,6 @@ Node_Num_Max = 35
 num_samples = 25
 NodeNum_List = []
 Average_Sync_List = []
-Ave_Graph_Den_List = []
 for i in range(Node_Num_Min, Node_Num_Max):
     NodeNum_List.append(Node_Num_Min+i)
 
@@ -157,23 +144,18 @@ for i in range(len(NodeNum_List)):
     X, embs = G.get_patches(k=k, sample_size=num_samples, skip_folded_hom=True)
     graph_list = Data_Gen_Class.generate_nxg(X)
     Total_Sync = 0
-    Graph_Den = 0
     for G in graph_list:
-        Graph_Den += nx.density(G)
         s = np.random.randint(5, size=1*k)
         GHM_Class = GHM(G=G, S=s, Kap=Kap, ItNum=ItNum)
         state, label = GHM_Class.GHM1D()
         if label:
             Total_Sync += 1
-    Average_Den = Graph_Den/num_samples
-    Ave_Graph_Den_List.append(Average_Den)
     Average_Sync_Perc =  Total_Sync/num_samples
     Average_Sync_List.append(Average_Sync_Perc)
-plt.plot(Ave_Graph_Den_List)
 plt.plot(Average_Sync_List)
-d
-plt.title('Average Sync Percentage and Graph Density for 25-sample 5-35-Nodes Wisconsin')
-plt.legend(['Density','Sync'])
+plt.xlabel('Node Number')
+plt.ylabel('Synchronizing Ratio')
+plt.title('Average Sync Percentage for 25-sample 5-35 Nodes UCLA')
 plt.show()
 
 """Harvard graph with different number of nodes"""
@@ -186,7 +168,6 @@ Node_Num_Max = 35
 num_samples = 25
 NodeNum_List = []
 Average_Sync_List = []
-Ave_Graph_Den_List = []
 for i in range(Node_Num_Min, Node_Num_Max):
     NodeNum_List.append(Node_Num_Min+i)
 
@@ -199,24 +180,19 @@ for i in range(len(NodeNum_List)):
     X, embs = G.get_patches(k=k, sample_size=num_samples, skip_folded_hom=True)
     graph_list = Data_Gen_Class.generate_nxg(X)
     Total_Sync = 0
-    Graph_Den = 0
     for G in graph_list:
-        Graph_Den += nx.density(G)
         s = np.random.randint(5, size=1*k)
         GHM_Class = GHM(G=G, S=s, Kap=Kap, ItNum=ItNum)
         state, label = GHM_Class.GHM1D()
         if label:
             Total_Sync += 1
-    Average_Den = Graph_Den/num_samples
-    Ave_Graph_Den_List.append(Average_Den)
     Average_Sync_Perc =  Total_Sync/num_samples
     Average_Sync_List.append(Average_Sync_Perc)
-plt.plot(Ave_Graph_Den_List)
 plt.plot(Average_Sync_List)
-plt.title('Average Sync Percentage and Graph Density for 25-sample 5-35-Nodes Harvard')
-plt.legend(['Density','Sync'])
+plt.xlabel('Node Number')
+plt.ylabel('Synchronizing Ratio')
+plt.title('Average Sync Percentage for 25-sample 5-35 Nodes UCLA')
 plt.show()
-
 
 """ GHM 2D implementation with different node number with assignment probability 1"""
 SideLength_List = []
@@ -235,8 +211,12 @@ for i in range(len(SideLength_List)):
         SyncNum_List.append(1)
     else:
         SyncNum_List.append(0)
-plt.plot(SyncNum_List)  
+        
+plt.plot(SyncNum_List) 
+plt.xlabel('Grid Graph Side length')
+plt.xlabel('Sync Ratio')
 plt.title('GHM 2D stochastic with assignment probability 1')  
+plt.ylim(0,1)
 plt.show()     
 
 """ GHM 2D implementation with different node number with assignment probability 0.8"""
@@ -258,8 +238,11 @@ for i in range(len(SideLength_List)):
         SyncNum_List.append(0)
         
 plt.plot(SyncNum_List) 
+plt.xlabel('Grid Graph Side length')
+plt.xlabel('Sync Ratio')
 plt.title('GHM 2D stochastic with assignment probability 0.8')  
-plt.show()     
+plt.ylim(0,1)
+plt.show()
 
 
 """ GHM 2D implementation with different node number with assignment probability 0.6"""
@@ -281,8 +264,11 @@ for i in range(len(SideLength_List)):
         SyncNum_List.append(0)
         
 plt.plot(SyncNum_List) 
-plt.title('GHM 2D stochastic with assignment probability 0.6') 
-plt.show()  
+plt.xlabel('Grid Graph Side length')
+plt.xlabel('Sync Ratio')
+plt.title('GHM 2D stochastic with assignment probability 0.6')  
+plt.ylim(0,1)
+plt.show()
 
 """ GHM 2D implementation with different node number with assignment probability 0.4"""
 SideLength_List = []
@@ -303,7 +289,10 @@ for i in range(len(SideLength_List)):
         SyncNum_List.append(0)
         
 plt.plot(SyncNum_List) 
-plt.title('GHM 2D stochastic with assignment probability 0.4')   
+plt.xlabel('Grid Graph Side length')
+plt.xlabel('Sync Ratio')
+plt.title('GHM 2D stochastic with assignment probability 0.4')  
+plt.ylim(0,1)
 plt.show()  
 
 """ GHM 2D implementation with different node number with assignment probability 0.2"""
@@ -324,7 +313,9 @@ for i in range(len(SideLength_List)):
     else:
         SyncNum_List.append(0)
         
-plt.plot(SyncNum_List)  
+plt.plot(SyncNum_List) 
+plt.xlabel('Grid Graph Side length')
+plt.xlabel('Sync Ratio')
 plt.title('GHM 2D stochastic with assignment probability 0.2')  
-plt.show()  
-
+plt.ylim(0,1)
+plt.show()
