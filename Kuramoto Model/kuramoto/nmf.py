@@ -285,7 +285,6 @@ def ALS(X,
     
 
 def generate_nxg(X):
-    
     graph_list = []
     k = int(np.sqrt(X.shape[0]))
     for i in range(X.shape[1]):

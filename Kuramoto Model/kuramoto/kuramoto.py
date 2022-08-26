@@ -1,4 +1,5 @@
 import numpy as np
+import random
 from scipy.integrate import odeint
 
 
@@ -46,7 +47,7 @@ class Kuramoto:
             self.n_nodes = len(natfreqs)
         else:
             self.n_nodes = n_nodes
-            self.natfreqs = np.random.normal(size = self.n_nodes)
+            self.natfreqs = np.zeros(self.n_nodes)
 
     def init_angles(self):
         '''
@@ -76,9 +77,11 @@ class Kuramoto:
         return dxdt
 
     def integrate(self, angles_vec, adj_mat):
-        '''Updates all states by integrating state of all nodes'''
-        # Coupling term (k / Mj) is constant in the integrated time window.
-        # Compute it only once here and pass it to the derivative function
+        '''
+        Updates all states by integrating state of all nodes
+        Coupling term (k / Mj) is constant in the integrated time window.
+        Compute it only once here and pass it to the derivative function
+        '''
         n_interactions = (adj_mat != 0).sum(axis=0)  # number of incoming interactions
         coupling = self.coupling / n_interactions  # normalize coupling by number of interactions
 
@@ -87,27 +90,27 @@ class Kuramoto:
         return timeseries.T  # transpose for consistency (act_mat:node vs time)
     
     def predict_concentration(self, colors):
-            """
-            computes width from a color list
-            """
-            ordered = list(np.pi - colors); ordered.sort()
-            lordered = len(ordered)
-            threshold = np.pi
-            if ordered == 0:
-                assert("Empty array or logic error.")
-            elif lordered == 1:
-                return 0
-            elif lordered == 2:
-                dw = ordered[1]-ordered[0]
-                if dw > threshold:
-                    return 2*np.pi - dw
-                else:
-                    return dw
+        '''
+        computes width from a color list
+        '''
+        ordered = list(np.pi - colors); ordered.sort()
+        lordered = len(ordered)
+        threshold = np.pi
+        if ordered == 0:
+            assert("Empty array or logic error.")
+        elif lordered == 1:
+            return 0
+        elif lordered == 2:
+            dw = ordered[1]-ordered[0]
+            if dw > threshold:
+                return 2*np.pi - dw
             else:
-                widths = [2*np.pi+ordered[0]-ordered[-1]]
-                for i in range(lordered-1):
-                    widths.append(ordered[i+1]-ordered[i])
-                return np.abs(2*np.pi - max(widths))
+                return dw
+        else:
+            widths = [2*np.pi+ordered[0]-ordered[-1]]
+            for i in range(lordered-1):
+                widths.append(ordered[i+1]-ordered[i])
+            return np.abs(2*np.pi - max(widths))
 
     def run(self, adj_mat=None, angles_vec=None):
         '''
@@ -131,40 +134,14 @@ class Kuramoto:
         ## Baseline iteration concentration
         base_arr = (sim.T)[self.base_iter]
         self.baseline = (self.predict_concentration(base_arr) < np.pi)
-        
-        ## Training iteration concentration
-        if self.baseline:
+        if self.baseline == True:
             self.concentrated = True
             return sim
-        else:
-            arr = (sim.T)[-1]
-            self.concentrated = (self.predict_concentration(arr) < np.pi)
+        
+        
+        self.baseline = random.choice([True, False])
+        arr = (sim.T)[-1]
+        self.concentrated = (self.predict_concentration(arr) < np.pi)
             
         return sim
-
-#     @staticmethod
-#     def phase_coherence(angles_vec):
-#         '''
-#         Compute global order parameter R_t - mean length of resultant vector
-#         '''
-#         suma = sum([(np.e ** (1j * i)) for i in angles_vec])
-#         return abs(suma / len(angles_vec))
-
-#     def mean_frequency(self, act_mat, adj_mat):
-#         '''
-#         Compute average frequency within the time window (self.T) for all nodes
-#         '''
-#         assert len(adj_mat) == act_mat.shape[0], 'adj_mat does not match act_mat'
-#         _, n_steps = act_mat.shape
-
-#         # Compute derivative for all nodes for all time steps
-#         dxdt = np.zeros_like(act_mat)
-#         for time in range(n_steps):
-#             dxdt[:, time] = self.derivative(act_mat[:, time], None, adj_mat)
-
-#         # Integrate all nodes over the time window T
-#         integral = np.sum(dxdt * self.dt, axis=1)
-#         # Average across complete time window - mean angular velocity (freq.)
-#         meanfreq = integral / self.T
-#         return meanfreq
 
