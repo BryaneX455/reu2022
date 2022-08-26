@@ -299,10 +299,7 @@ class Data_Gen:
         
         path = str(ntwk) + '.txt'
         G = nn.NNetwork()
-        G.load_add_edges(path, increment_weights=False, use_genfromtxt=True)
-        #print('num nodes in G', len(G.nodes()))
-        #print('num edges in G', len(G.get_edges()))
-        
+        G.load_add_edges(path, increment_weights=False, use_genfromtxt=True)        
         X, embs = G.get_patches(k=k, sample_size=self.num_samples, skip_folded_hom=True)
         graph_list = self.generate_nxg(X)
         SyncNum = 0
