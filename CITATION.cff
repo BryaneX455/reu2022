@@ -1,0 +1,7 @@
+@software{InterpretableL2PSync,
+  author = {Goyal, Agam and Wu, Bella and Chen, Binhao and Xu, Bryan and Lyu, Hanbaek},
+  month = {08},
+  title = {{interpretable_l2psync}},
+  url = {https://github.com/AGoyal0512/reu2022/},
+  year = {2022}
+}
