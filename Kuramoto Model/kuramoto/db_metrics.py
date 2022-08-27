@@ -57,7 +57,7 @@ def gen_all(nodes, r, num_samples, edge_var="L", random_K=False, half_sync=False
         graph_list.append(G)
         
         if random_K: K = random.uniform(0.5, 4.5)
-        else: K = 1.96
+        else: K = 1
             
         
         if nx.is_connected(G):
@@ -103,11 +103,10 @@ def gen_all(nodes, r, num_samples, edge_var="L", random_K=False, half_sync=False
         else:
             graph_list.remove(G)
             
-    g2v = Graph2Vec(wl_iterations = 5, dimensions = 16)
+    g2v = Graph2Vec(wl_iterations = 5, dimensions = 8)
     g2v.fit(graph_list)
     embed = g2v.get_embedding()
-    df_g2v = pd.DataFrame(embed, columns=['f1', 'f2', 'f3', 'f4', 'f5', 'f6', 'f7', 'f8', 
-                                          'f9', 'f10', 'f11', 'f12', 'f13', 'f14', 'f15', 'f16'])
+    df_g2v = pd.DataFrame(embed, columns=['f1', 'f2', 'f3', 'f4', 'f5', 'f6', 'f7', 'f8'])
         
     df_final = pd.concat([df_g2v, df], axis=1)
             
