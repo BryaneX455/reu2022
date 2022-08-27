@@ -27,6 +27,8 @@ s = np.random.randint(5, size=1*NodeNum)
 GHM_Class = GHM(G, s, Kap, ItNum)
 st, sync = GHM_Class.GHM1D()
 sb.heatmap(st)
+plt.xlabel('Node Sequence')
+plt.ylabel('Dynamics Iteration')
 plt.title('GHM1D_WS_20Nodes_4knn_0.65Rewiring')
 plt.show()
 
@@ -49,6 +51,9 @@ GHM_Animation_Class.Animate_GHM2D()
 
 
 """Graph with different number of nodes"""
+ncol = 4
+nrow = 2
+fig, axs = plt.subplots(ncols=ncol, nrows=nrow, figsize=(ncol*4, nrow*4))
 sampling_alg = 'pivot'
 #ncol = 4
 #nrow = 2
@@ -56,11 +61,11 @@ sampling_alg = 'pivot'
 ntwk ='UCLA26' # COVID_PPI, Wisconsin87, Caltech36
 ntwk_nonumber = ''.join([i for i in ntwk if not i.isdigit()])
 Node_Num_Min = 5
-Node_Num_Max = 25
-num_samples = 10
+Node_Num_Max = 30
+num_samples = 25
 NodeNum_List = []
 Average_Sync_List = []
-Ave_Cycle_List = []
+Ave_Tri_List = []
 for i in range(Node_Num_Min, Node_Num_Max):
     NodeNum_List.append(Node_Num_Min+i)
 
@@ -74,28 +79,150 @@ for i in range(len(NodeNum_List)):
     X, embs = G.get_patches(k=k, sample_size=num_samples, skip_folded_hom=True)
     graph_list = Data_Gen_Class.generate_nxg(X)
     Total_Sync = 0
-    Total_Cycle = 0
+    Total_Tran = 0
     for G in graph_list:
-        G_Di = G.to_directed()
-        Cycle_List = list(nx.simple_cycles(G_Di))
-        Cycle_Num = len(Cycle_List)
-        Total_Cycle += Cycle_Num
+        Transitivity = nx.transitivity(G)
+        Total_Tran += Transitivity
         s = np.random.randint(5, size=1*k)
         GHM_Class = GHM(G=G, S=s, Kap=Kap, ItNum=ItNum)
         state, label = GHM_Class.GHM1D()
         if label:
             Total_Sync += 1
-    Ave_Cycle = Total_Cycle/num_samples
-    Ave_Cycle_List.append(Ave_Cycle)
+    Ave_Transitivity = Total_Tran/num_samples
+    Ave_Tri_List.append(Ave_Transitivity)
     Average_Sync_Perc =  Total_Sync/num_samples
     Average_Sync_List.append(Average_Sync_Perc)
-plt.plot(Average_Sync_List)
-plt.xlabel('Node Number')
-plt.ylabel('Sync Ratio')
+axs[0,0].plot(Average_Sync_List)
+axs[0,0].set_xlabel('Node Number')
+axs[0,0].set_ylabel('Sync Ratio')
+axs[1,0].plot(Ave_Tri_List)
+axs[1,0].set_xlabel('Node Number')
+axs[1,0].set_ylabel('Average Tran Number')
+
+ntwk ='Caltech36' # COVID_PPI, Wisconsin87, Caltech36
+ntwk_nonumber = ''.join([i for i in ntwk if not i.isdigit()])
+Node_Num_Min = 5
+Node_Num_Max = 30
+num_samples = 25
+NodeNum_List = []
+Average_Sync_List = []
+Ave_Tri_List = []
+for i in range(Node_Num_Min, Node_Num_Max):
+    NodeNum_List.append(Node_Num_Min+i)
+
+
+for i in range(len(NodeNum_List)):
+    print(i)
+    k = NodeNum_List[i]   
+    path = str(ntwk) + '.txt'
+    G = nn.NNetwork()
+    G.load_add_edges(path, increment_weights=False, use_genfromtxt=True)        
+    X, embs = G.get_patches(k=k, sample_size=num_samples, skip_folded_hom=True)
+    graph_list = Data_Gen_Class.generate_nxg(X)
+    Total_Sync = 0
+    Total_Tran = 0
+    for G in graph_list:
+        Transitivity = nx.transitivity(G)
+        Total_Tran += Transitivity
+        s = np.random.randint(5, size=1*k)
+        GHM_Class = GHM(G=G, S=s, Kap=Kap, ItNum=ItNum)
+        state, label = GHM_Class.GHM1D()
+        if label:
+            Total_Sync += 1
+    Ave_Transitivity = Total_Tran/num_samples
+    Ave_Tri_List.append(Ave_Transitivity)
+    Average_Sync_Perc =  Total_Sync/num_samples
+    Average_Sync_List.append(Average_Sync_Perc)
+axs[0,1].plot(Average_Sync_List)
+axs[0,1].set_xlabel('Node Number')
+axs[0,1].set_ylabel('Sync Ratio')
+axs[1,1].plot(Ave_Tri_List)
+axs[1,1].set_xlabel('Node Number')
+axs[1,1].set_ylabel('Average Tran Number')
+
+ntwk ='Wisconsin87' # COVID_PPI, Wisconsin87, Caltech36
+ntwk_nonumber = ''.join([i for i in ntwk if not i.isdigit()])
+Node_Num_Min = 5
+Node_Num_Max = 30
+num_samples = 25
+NodeNum_List = []
+Average_Sync_List = []
+Ave_Tri_List = []
+for i in range(Node_Num_Min, Node_Num_Max):
+    NodeNum_List.append(Node_Num_Min+i)
+
+
+for i in range(len(NodeNum_List)):
+    print(i)
+    k = NodeNum_List[i]   
+    path = str(ntwk) + '.txt'
+    G = nn.NNetwork()
+    G.load_add_edges(path, increment_weights=False, use_genfromtxt=True)        
+    X, embs = G.get_patches(k=k, sample_size=num_samples, skip_folded_hom=True)
+    graph_list = Data_Gen_Class.generate_nxg(X)
+    Total_Sync = 0
+    Total_Tran = 0
+    for G in graph_list:
+        Transitivity = nx.transitivity(G)
+        Total_Tran += Transitivity
+        s = np.random.randint(5, size=1*k)
+        GHM_Class = GHM(G=G, S=s, Kap=Kap, ItNum=ItNum)
+        state, label = GHM_Class.GHM1D()
+        if label:
+            Total_Sync += 1
+    Ave_Transitivity = Total_Tran/num_samples
+    Ave_Tri_List.append(Ave_Transitivity)
+    Average_Sync_Perc =  Total_Sync/num_samples
+    Average_Sync_List.append(Average_Sync_Perc)
+axs[0,2].plot(Average_Sync_List)
+axs[0,2].set_xlabel('Node Number')
+axs[0,2].set_ylabel('Sync Ratio')
+axs[1,2].plot(Ave_Tri_List)
+axs[1,2].set_xlabel('Node Number')
+axs[1,2].set_ylabel('Average Tran Number')
+
+ntwk ='Harvard1' # COVID_PPI, Wisconsin87, Caltech36
+ntwk_nonumber = ''.join([i for i in ntwk if not i.isdigit()])
+Node_Num_Min = 5
+Node_Num_Max = 30
+num_samples = 25
+NodeNum_List = []
+Average_Sync_List = []
+Ave_Tri_List = []
+for i in range(Node_Num_Min, Node_Num_Max):
+    NodeNum_List.append(Node_Num_Min+i)
+
+
+for i in range(len(NodeNum_List)):
+    print(i)
+    k = NodeNum_List[i]   
+    path = str(ntwk) + '.txt'
+    G = nn.NNetwork()
+    G.load_add_edges(path, increment_weights=False, use_genfromtxt=True)        
+    X, embs = G.get_patches(k=k, sample_size=num_samples, skip_folded_hom=True)
+    graph_list = Data_Gen_Class.generate_nxg(X)
+    Total_Sync = 0
+    Total_Tran = 0
+    for G in graph_list:
+        Transitivity = nx.transitivity(G)
+        Total_Tran += Transitivity
+        s = np.random.randint(5, size=1*k)
+        GHM_Class = GHM(G=G, S=s, Kap=Kap, ItNum=ItNum)
+        state, label = GHM_Class.GHM1D()
+        if label:
+            Total_Sync += 1
+    Ave_Transitivity = Total_Tran/num_samples
+    Ave_Tri_List.append(Ave_Transitivity)
+    Average_Sync_Perc =  Total_Sync/num_samples
+    Average_Sync_List.append(Average_Sync_Perc)
+axs[0,3].plot(Average_Sync_List)
+axs[0,3].set_xlabel('Node Number')
+axs[0,3].set_ylabel('Sync Ratio')
+axs[1,3].plot(Ave_Tri_List)
+axs[1,3].set_xlabel('Node Number')
+axs[1,3].set_ylabel('Average Tran Number')
+fig.tight_layout()
 plt.show()
-plt.plot(Ave_Cycle_List)
-plt.xlabel('Node Number')
-plt.ylabel('Average Cycle Number')
 
 
 
@@ -109,7 +236,6 @@ for i in range(Side_Length_Min, Side_Length_Max):
 SyncNum_List = []
 
 for i in range(len(SideLength_List)):   
-    print(i)
     G = nx.grid_2d_graph(SideLength_List[i], SideLength_List[i]) 
     s = np.random.randint(5, size=1*SideLength_List[i]**2)
     GHM_Class = GHM(G, s, Kap, ItNum)
@@ -121,9 +247,9 @@ for i in range(len(SideLength_List)):
         
 plt.plot(SyncNum_List) 
 plt.xlabel('Grid Graph Side length')
-plt.xlabel('Sync Ratio')
+plt.ylabel('Sync-1 Non-Sync-0')
 plt.title('GHM 2D stochastic with assignment probability 1')  
-plt.ylim(0,1)
+plt.ylim(0,1.2)
 plt.show()     
 
 """ GHM 2D implementation with different node number with assignment probability 0.8"""
@@ -146,9 +272,9 @@ for i in range(len(SideLength_List)):
         
 plt.plot(SyncNum_List) 
 plt.xlabel('Grid Graph Side length')
-plt.xlabel('Sync Ratio')
+plt.xlabel('Sync-1 Non-Sync-0')
 plt.title('GHM 2D stochastic with assignment probability 0.8')  
-plt.ylim(0,1)
+plt.ylim(0,1.2)
 plt.show()
 
 
@@ -172,9 +298,9 @@ for i in range(len(SideLength_List)):
         
 plt.plot(SyncNum_List) 
 plt.xlabel('Grid Graph Side length')
-plt.xlabel('Sync Ratio')
+plt.xlabel('Sync-1 Non-Sync-0')
 plt.title('GHM 2D stochastic with assignment probability 0.6')  
-plt.ylim(0,1)
+plt.ylim(0,1.2)
 plt.show()
 
 """ GHM 2D implementation with different node number with assignment probability 0.4"""
@@ -184,7 +310,6 @@ Side_Length_Max = 40
 for i in range(Side_Length_Min, Side_Length_Max):
     SideLength_List.append(Side_Length_Min+i)
 SyncNum_List = []
-
 for i in range(len(SideLength_List)):    
     G = nx.grid_2d_graph(SideLength_List[i], SideLength_List[i]) 
     s = np.random.randint(5, size=1*SideLength_List[i]**2)
@@ -197,9 +322,9 @@ for i in range(len(SideLength_List)):
         
 plt.plot(SyncNum_List) 
 plt.xlabel('Grid Graph Side length')
-plt.xlabel('Sync Ratio')
+plt.xlabel('Sync-1 Non-Sync-0')
 plt.title('GHM 2D stochastic with assignment probability 0.4')  
-plt.ylim(0,1)
+plt.ylim(0,1.2)
 plt.show()  
 
 """ GHM 2D implementation with different node number with assignment probability 0.2"""
@@ -222,7 +347,7 @@ for i in range(len(SideLength_List)):
         
 plt.plot(SyncNum_List) 
 plt.xlabel('Grid Graph Side length')
-plt.xlabel('Sync Ratio')
+plt.ylabel('Sync-1 Non-Sync-0')
 plt.title('GHM 2D stochastic with assignment probability 0.2')  
-plt.ylim(0,1)
+plt.ylim(0,1.2)
 plt.show()
