@@ -120,7 +120,6 @@ df_boxplot
 
 ax = sb.boxplot(data=df_boxplot, saturation=1)
 ax.axes.set_title("L$_1$ norm for NWS NMF Dictionaries", fontsize=15)
-plt.xlabel("GHM Sync Check", labelpad=10)
 plt.ylabel("L$_1$ norm", labelpad=10);
 
 """
@@ -219,7 +218,6 @@ df_boxplot
 
 ax = sb.boxplot(data=df_boxplot, saturation=1)
 ax.axes.set_title("L$_1$ norm for UCLA NMF Dictionaries", fontsize=15)
-plt.xlabel("GHM Sync Check", labelpad=10)
 plt.ylabel("L$_1$ norm", labelpad=10)
 
 """
@@ -317,7 +315,6 @@ df_boxplot
 
 ax = sb.boxplot(data=df_boxplot, saturation=1)
 ax.axes.set_title("L$_1$ norm for Harvard NMF Dictionaries", fontsize=15)
-plt.xlabel("GHM Sync Check", labelpad=10)
 plt.ylabel("L$_1$ norm", labelpad=10);
 
 """
@@ -414,7 +411,6 @@ df_boxplot
 
 ax = sb.boxplot(data=df_boxplot, saturation=1)
 ax.axes.set_title("L$_1$ norm for Wisconsin NMF Dictionaries", fontsize=15)
-plt.xlabel("GHM Sync Check", labelpad=10)
 plt.ylabel("L$_1$ norm", labelpad=10);
 
 
@@ -512,7 +508,6 @@ df_boxplot
 
 ax = sb.boxplot(data=df_boxplot, saturation=1)
 ax.axes.set_title("L$_1$ norm for Caltech NMF Dictionaries", fontsize=15)
-plt.xlabel("GHM Sync Check", labelpad=10)
 plt.ylabel("L$_1$ norm", labelpad=10);
 
 
