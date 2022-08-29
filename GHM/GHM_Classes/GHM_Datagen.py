@@ -62,15 +62,22 @@ class Data_Gen:
         ColList.extend(AllPhase)
         ColList.extend(['label'])
         df = pd.DataFrame(columns=ColList)
-        
+        G = nx.newman_watts_strogatz_graph(20000, 1000, 0.7)
+        edgelist = []
+        for i in list(G.edges(data=True)):
+            edgelist.append([i[0], i[1]])
+        G = nn.NNetwork()
+        G.add_edges(edgelist)     
+        num_nodes=20
+        X, embs = G.get_patches(k=num_nodes, sample_size=10000, skip_folded_hom=True)
+        graph_list = self.generate_nxg(X)
         SyncNum = 0
         NonSync = 0
         Total_Edge = 0
         Edge_Num_List = []
         Total_Diam = 0
         Diameter_List = []
-        for i in range(self.num_samples):
-            G = nx.newman_watts_strogatz_graph(self.NodeNum, self.knn, self.prob)
+        for G in graph_list:
             Edge_Num_List.append(G.number_of_edges())
             Total_Edge += G.number_of_edges()
             Total_Diam += nx.diameter(G)

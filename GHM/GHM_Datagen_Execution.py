@@ -14,12 +14,12 @@ from GHM_Classes.GHM_Datagen import Data_Gen
 
 
 Num_Sample = 10000
-Num_Node = 30
+Num_Node = 20
 Kap = 5
 ItNum = 30
 s = np.random.randint(5, size=1*Num_Node)
 """
-Data Generation All State WS
+Data Generation All State NWS
 """
 knn = 4
 prob = 0.65
@@ -35,7 +35,7 @@ Data Generation All State UCLA26
 """
 
 Num_Sample = 10000
-Num_Node  = 30
+Num_Node  = 20
 Kap = 5
 ItNum = 30
 Data_Gen_Class = Data_Gen(num_samples = Num_Sample, NodeNum = Num_Node, prob=None, knn=None, kap=Kap, GHMItNum = ItNum, s = s)
@@ -49,7 +49,7 @@ Data Generation All State Caltech36
 """
 
 Num_Sample = 10000
-Num_Node  = 30
+Num_Node  = 20
 Kap = 5
 ItNum = 30
 Data_Gen_Class = Data_Gen(num_samples = Num_Sample, NodeNum = Num_Node, prob=None, knn=None, kap=Kap, GHMItNum = ItNum, s = s)
@@ -62,7 +62,7 @@ print('Caltech:', 'SyncNum:', SyncNum, 'NonSync:', NonSync, 'Ave_Edge:', Ave_Edg
 """
 Data Generation All State Harvard1
 """
-
+"""
 Num_Sample = 10000
 Num_Node  = 30
 Kap = 5
@@ -71,13 +71,13 @@ Data_Gen_Class = Data_Gen(num_samples = Num_Sample, NodeNum = Num_Node, prob=Non
 df, SyncNum, NonSync, Ave_Edge, Std_Edge, Ave_Diam, Std_Diam =  Data_Gen_Class.Sample_HarvardGHM()
 df.to_csv('GHM_Dict_Data_Harvard1_AllStates.csv')  
 print('Harvard:', 'SyncNum:', SyncNum, 'NonSync:', NonSync, 'Ave_Edge:', Ave_Edge, 'Std_Edge:', Std_Edge, 'Ave_Diam:', Ave_Diam, 'Std_Diam:', Std_Diam)
-
+"""
 
 
 """
 Data Generation All State Wisconsin87
 """
-
+"""
 Num_Sample = 10000
 Num_Node  = 30
 Kap = 5
@@ -86,3 +86,4 @@ Data_Gen_Class = Data_Gen(num_samples = Num_Sample, NodeNum = Num_Node, prob=Non
 df, SyncNum, NonSync, Ave_Edge, Std_Edge, Ave_Diam, Std_Diam =  Data_Gen_Class.Sample_WisconsinGHM()
 df.to_csv('GHM_Dict_Data_Wisconsin87_AllStates.csv')  
 print('Wisconsin', 'SyncNum:', SyncNum, 'NonSync:', NonSync, 'Ave_Edge:', Ave_Edge, 'Std_Edge:', Std_Edge, 'Ave_Diam:', Ave_Diam, 'Std_Diam:', Std_Diam)
+"""
