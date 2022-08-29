@@ -186,6 +186,76 @@ class GHM:
                 if S_Temp[j] == 0 and (not Onein):
                     if P <= Cut:
                         SN[j] = 0
+                    else:
+                        SN[j] = (SN[j] + 1) % self.Kap
+                elif S_Temp[j] == 0 and Onein:
+                    if P <= Cut:
+                        SN[j] = 1 % self.Kap
+                else:
+                    if (S_Temp[j] + 1) % self.Kap == 0:                        
+                        SN[j]=0
+                    else:       
+                        SN[j] = (SN[j] + 1) % self.Kap
+        
+        PhaseState = pd.DataFrame(St)
+        Sync = False           
+        if np.all((St[self.ItNum-1] == 0)):
+            Sync = True
+    
+        return PhaseState, St, Sync
+    
+    def GHMGridToArr_Stochastic_Exc(self, Cut):
+        """Implements Vectorized 2D Grennberg Hasting Model 
+    
+        Args:
+            G (NetworkX Graph): Input graph to the model
+            S (array): Current state
+            Kap (int): Kap-color GHM
+            ItNum (int): Number of iterations
+    
+        Returns:
+            Generates heatmap of time evolution of vectorized 2D GHM model
+        """
+        
+        GArr = list(np.zeros(self.G.number_of_nodes()))
+        ColNum = 0
+        for i in range(self.G.number_of_nodes()):
+            if list(self.G.nodes)[i][0] == 0:
+                ColNum += 1
+        RowNum = int(self.G.number_of_nodes()/ColNum)
+        for i in range(RowNum):
+            for j in range(ColNum):
+                GArr[int(i)*ColNum + int(j)] = int(i)*ColNum + int(j)
+        St = self.S
+        S_Temp = np.zeros(self.G.number_of_nodes())
+        SN = np.zeros(self.G.number_of_nodes())
+        NodeNum = self.G.number_of_nodes()
+        for i in range(len(self.S)):
+            SN[i] = self.S[i]
+        for i in range(len(self.S)):
+            S_Temp[i] = self.S[i]
+        for i in range(self.ItNum):
+            if i!=0:
+                for l1 in range(len(self.S)):
+                    S_Temp[l1] = SN[l1]
+                St = np.vstack((St,SN))
+            for j in range(NodeNum):
+                Onein = False
+                NeighbNum2D = len(list(self.G.neighbors(list(self.G.nodes)[j])))
+                NeighbSet2D = self.G.neighbors(list(self.G.nodes)[j])
+                NeighbList2D = list(NeighbSet2D)
+                NeighbPos = list(np.zeros(len(NeighbList2D)))
+                for k in range(len(NeighbList2D)):
+                    NeighbPos[k] = NeighbList2D[k][0]*ColNum+NeighbList2D[k][1]
+                NeighbState2D = np.zeros(NeighbNum2D)
+                for k in range(NeighbNum2D):
+                    NeighbState2D[k] = S_Temp[int(NeighbPos[k])]  
+    
+                if 1 in NeighbState2D:
+                    Onein = True
+                P = random.uniform(0, 1)
+                if S_Temp[j] == 0 and (not Onein):
+                    SN[j] = 0
                 elif S_Temp[j] == 0 and Onein:
                     if P <= Cut:
                         SN[j] = 1 % self.Kap
