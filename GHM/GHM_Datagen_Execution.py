@@ -14,7 +14,7 @@ from GHM_Classes.GHM_Datagen import Data_Gen
 
 
 Num_Sample = 10000
-Num_Node = 20
+Num_Node = 25
 Kap = 5
 ItNum = 30
 s = np.random.randint(5, size=1*Num_Node)
@@ -35,7 +35,7 @@ Data Generation All State UCLA26
 """
 
 Num_Sample = 10000
-Num_Node  = 20
+Num_Node  = 25
 Kap = 5
 ItNum = 30
 Data_Gen_Class = Data_Gen(num_samples = Num_Sample, NodeNum = Num_Node, prob=None, knn=None, kap=Kap, GHMItNum = ItNum, s = s)
@@ -49,7 +49,7 @@ Data Generation All State Caltech36
 """
 
 Num_Sample = 10000
-Num_Node  = 20
+Num_Node  = 25
 Kap = 5
 ItNum = 30
 Data_Gen_Class = Data_Gen(num_samples = Num_Sample, NodeNum = Num_Node, prob=None, knn=None, kap=Kap, GHMItNum = ItNum, s = s)

@@ -68,8 +68,7 @@ class Data_Gen:
             edgelist.append([i[0], i[1]])
         G = nn.NNetwork()
         G.add_edges(edgelist)     
-        num_nodes=20
-        X, embs = G.get_patches(k=num_nodes, sample_size=10000, skip_folded_hom=True)
+        X, embs = G.get_patches(k=self.NodeNum, sample_size=10000, skip_folded_hom=True)
         graph_list = self.generate_nxg(X)
         SyncNum = 0
         NonSync = 0
@@ -136,7 +135,7 @@ class Data_Gen:
         #print('num nodes in G', len(G.nodes()))
         #print('num edges in G', len(G.get_edges()))
         
-        X, embs = G.get_patches(k=k, sample_size=self.num_samples, skip_folded_hom=True)
+        X, embs = G.get_patches(k=self.NodeNum, sample_size=self.num_samples, skip_folded_hom=True)
         graph_list = self.generate_nxg(X)
         SyncNum = 0
         NonSync = 0
