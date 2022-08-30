@@ -39,8 +39,11 @@ class GHM_Animation:
             sb.heatmap(S,cbar=False, cmap='viridis')
         
         def animate(i):
-            PhaseStatei = PhaseStateList[i]
-            sb.heatmap(PhaseStatei,cbar=False, cmap='viridis')
+            PhaseStatei = PhaseStateList[i]    
+            sb.heatmap(PhaseStatei, cbar = False, cmap='viridis')
+            plt.title('GHM 2-D Grid Phase Transition')
+            plt.xlabel('t = '+ str(i))
+            plt.colorbar()
             
         PhaseStateList = [[[0 for k in range(n)] for j in range(m)] for i in range(self.ItNum)]
         
