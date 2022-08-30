@@ -33,6 +33,7 @@ b = WSD.copy()
 list_keys = list(WSD.keys())
 y = b['label']
 df_True = b[y == 1]
+print(df_True.shape)
 df_False = b[y == 0]
 title1 = 'Adj_Matrix for NWS_GHM Sync'
 title2 = 'Adj_Matrix for NWS_GHM Non-Sync'
@@ -41,7 +42,8 @@ title2 = 'Adj_Matrix for NWS_GHM Non-Sync'
 
 
 
-c_True = df_True.loc[:3972, 'E_0_0':'E_24_24']
+c_True = df_True.iloc[0:3972, df_True.columns.get_loc('E_0_0'):df_True.columns.get_loc('S_0_0')]
+print(c_True.shape)
 c_False = df_False.loc[:,'E_0_0':'E_24_24']
 X_True = c_True.values.transpose()
 X_False = c_False.values.transpose()
@@ -95,6 +97,7 @@ n=8
 Display_Class.plot_adj_to_graph_deg(W_True, W_False, n, True, title = 'NWS_GHM_Dict_to_Graph_Deg')
 
 true_norm = np.linalg.norm(W_True.T, ord=1, axis=1)
+print(true_norm)
 false_norm = np.linalg.norm(W_False.T, ord=1, axis=1)
 
 data_arr = np.stack((true_norm, false_norm), axis=0).T
@@ -104,9 +107,10 @@ ax = sb.boxplot(data=df_boxplot, saturation=1)
 ax.axes.set_title("L$_1$ norm for NWS NMF Dictionaries", fontsize=15)
 plt.ylabel("L$_1$ norm", labelpad=10)
 plt.show()
-true_norm_real = np.linalg.norm(c_True.T, ord=1, axis=1)
-false_norm_real = np.linalg.norm(c_False.T, ord=1, axis=1)
-
+true_norm_real = np.linalg.norm(c_True, ord=1, axis=0)
+false_norm_real = np.linalg.norm(c_False, ord=1, axis=0)
+print(len(true_norm_real))
+print(len(false_norm_real))
 data_arr_real = np.stack((true_norm_real, false_norm_real), axis=0).T
 df_boxplot_real = pd.DataFrame(data_arr_real, columns = ['Synchronizing','Non-Synchronizing'])
 
