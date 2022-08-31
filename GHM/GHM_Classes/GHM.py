@@ -187,10 +187,12 @@ class GHM:
                     if P <= Cut:
                         SN[j] = 0
                     else:
-                        SN[j] = (SN[j] + 1) % self.Kap
+                        SN[j] = 1
                 elif S_Temp[j] == 0 and Onein:
                     if P <= Cut:
-                        SN[j] = 1 % self.Kap
+                        SN[j] = 1 
+                    else:
+                        SN[j] = 0
                 else:
                     if (S_Temp[j] + 1) % self.Kap == 0:                        
                         SN[j]=0

@@ -30,9 +30,6 @@ from sklearn.ensemble import RandomForestClassifier as rf
 from sklearn.svm import SVC
 from GHM_Classes.Display import Display
 from GHM_Classes.NMF import NMF
-
-
-
 warnings.filterwarnings("ignore")
 Display_Class = Display()
 NMF_Class = NMF()
@@ -44,7 +41,7 @@ def twoRandomNumbers(a,b):
     else: return b
 
 
-WSD = pd.read_csv('GHM_Dict_Data_AllStates.csv')
+WSD = pd.read_csv('GHM_Dict_Data_NWS_AllStates.csv')
 
 
 """
@@ -53,7 +50,7 @@ Edge Only Prediction using SNMF, Random Forest, and SVM
 
 print("X", len(WSD.values))
 
-X_Edge = np.array(WSD.iloc[:,7:263])
+X_Edge = np.array(WSD.loc[:,'E_0_0':'E_24_24'])
 Y_Edge = np.array(WSD['label'])
 under_sampler = RandomUnderSampler(random_state=42)
 X_res_Edge, y_res_Edge = under_sampler.fit_resample(X_Edge, Y_Edge)
@@ -92,12 +89,11 @@ Result_Dict_Edge = SNMF_Class.train_logistic(iter=iteration, subsample_size=None
 Y_Test_SNMF_Edge = Result_Dict_Edge['Y_test']
 Y_Pred_SNMF_Edge = Result_Dict_Edge['Y_pred']
 W_Dict_Edge = Result_Dict_Edge['loading']
-print(W_Dict_Edge[0].shape)
 H_Edge = Result_Dict_Edge['code']
 print(H_Edge.shape)
 sb.heatmap(W_Dict_Edge[1], cmap="icefire", cbar=False)
 plt.show()
-Display_Class.display_dictionary(title = 'SNMF_WS_Adj', dictionary_shape = None, W = W_Dict_Edge[0], figsize=[10,10])
+Display_Class.display_dictionary(title = 'SNMF_NWS_Adj', dictionary_shape = None, W = W_Dict_Edge[0], figsize=[10,10])
 Accuracy_SNMF_Edge = Result_Dict_Edge['Accuracy']
 print(Accuracy_SNMF_Edge)
 
@@ -180,7 +176,7 @@ Accuracy_SVM_All = list(np.zeros(Num_Iter_Pick))
 Accuracy_Baseline_All = list(np.zeros(Num_Iter_Pick))
 Reg_Coeff_List = []
 for i in range(Num_Iter_Pick):
-    X = np.array(WSD.iloc[:,7:(279+i*16)])
+    X = np.array(WSD.iloc[:,WSD.columns.get_loc('E_0_0'):(WSD.columns.get_loc('S_0_0')+i*25)])
     Y = np.array(WSD['label'])
     Feat_Shape_Edge = 16
     Feat_Shape_Phase= int(len(X[0])/16) - 16
@@ -250,7 +246,6 @@ for i in range(Num_Iter_Pick):
     sb.heatmap(Reg_Coeff_List, cmap="icefire", cbar=False)
     plt.show()
     print(W_Dict[0].shape[1])
-    Display_Class.display_dictionary_WPhase(title = 'SNMF_WS_Adj_States', dictionary_shape = (Feat_Shape, 16), W = W_Dict[0], figsize=[10,10], W_sep_pos = 256)
     Accuracy_SNMF_All[i] = Result_Dict['Accuracy']
     # conf_matrix_RF = confusion_matrix(y_true = Y_Test_SNMF[0,:], y_pred = Y_Pred_SNMF)
     # disp = ConfusionMatrixDisplay(confusion_matrix=conf_matrix,

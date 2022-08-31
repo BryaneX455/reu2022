@@ -53,6 +53,7 @@ GHM_Animation_Class.Animate_GHM2D()
 
 
 """Graph with different number of nodes"""
+
 ncol = 3
 nrow = 1
 fig, axs = plt.subplots(ncols=ncol, nrows=nrow, figsize=(ncol*4, nrow*4))
@@ -221,11 +222,11 @@ axs[1].set_title('UCLA')
 
 axs[2].set_title('Caltech')
 
-axs[0].set_ylim(0,1)
+axs[0].set_ylim(0,1.2)
 
-axs[1].set_ylim(0,1)
+axs[1].set_ylim(0,1.2)
 
-axs[2].set_ylim(0,1)
+axs[2].set_ylim(0,1.2)
 
 fig.tight_layout()
 plt.show()
@@ -276,7 +277,7 @@ plt.xlabel('Grid Graph Side length')
 plt.ylabel('Sync-1 Non-Sync-0')
 plt.title('GHM 2D stochastic with assignment probability 1')  
 plt.ylim(0,1.2)
-plt.legend(['static and excitation','static'])
+plt.legend(['suppress','suppress and excitation'])
 plt.show()     
 """
 """ GHM 2D implementation with different node number with assignment probability 0.8"""
@@ -322,7 +323,7 @@ plt.xlabel('Grid Graph Side length')
 plt.ylabel('Sync-1 Non-Sync-0')
 plt.title('GHM 2D stochastic with assignment probability 0.8')  
 plt.ylim(0,1.2)
-plt.legend(['static and excitation','static'])
+plt.legend(['suppress','suppress and excitation'])
 plt.show()
 """
 """ GHM 2D implementation with different node number with assignment probability 0.6"""
@@ -368,7 +369,7 @@ plt.xlabel('Grid Graph Side length')
 plt.ylabel('Sync-1 Non-Sync-0')
 plt.title('GHM 2D stochastic with assignment probability 0.6')  
 plt.ylim(0,1.2)
-plt.legend(['static and excitation', 'static'])
+plt.legend(['suppress', 'suppress and excitation'])
 plt.show()
 """
 """ GHM 2D implementation with different node number with assignment probability 0.4"""
@@ -414,7 +415,7 @@ plt.xlabel('Grid Graph Side length')
 plt.ylabel('Sync-1 Non-Sync-0')
 plt.title('GHM 2D stochastic with assignment probability 0.4')  
 plt.ylim(0,1.2)
-plt.legend(['static and excitation','static'])
+plt.legend(['suppress','suppress and excitation'])
 plt.show()
 """
 """ GHM 2D implementation with different node number with assignment probability 0.2"""
@@ -460,5 +461,6 @@ plt.xlabel('Grid Graph Side length')
 plt.ylabel('Sync-1 Non-Sync-0')
 plt.title('GHM 2D stochastic with assignment probability 0.2')  
 plt.ylim(0,1.2)
-plt.legend(['static and excitation', 'static'])
-plt.show()"""
+plt.legend(['suppress', 'suppress and excitation'])
+plt.show()
+"""
