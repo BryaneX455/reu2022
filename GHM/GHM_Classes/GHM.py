@@ -21,6 +21,35 @@ class GHM:
         self.S = S
         self.Kap = Kap
         self.ItNum = ItNum
+    
+    def Non_Excitation_Ratio(self):
+        Non_Num = 0
+        Pre_Exc = 0
+        Ratio = 0
+        NoZero = False
+        for j in range(self.G.number_of_nodes()):
+            Onein = False
+            StateZero = False
+            NeighbNum = len(list(self.G.neighbors(list(self.G.nodes)[j])))
+            NeighbSet = self.G.neighbors(list(self.G.nodes)[j])
+            NeighbList = list(NeighbSet)
+            NeighbState = list(np.zeros(NeighbNum))
+            for k in range(NeighbNum):
+                NeighbState[k] = self.S[int(NeighbList[k])-1]
+                
+
+            if 1 in NeighbState:
+                Onein = True
+            if self.S[j] == 0:
+                StateZero = True
+                Pre_Exc += 1
+            if StateZero & (not Onein):
+                Non_Num += 1
+        if Pre_Exc == 0:
+            NoZero = True
+        else:
+            Ratio =  Non_Num/Pre_Exc
+        return Ratio, NoZero
         
     
     def GHM1D(self):

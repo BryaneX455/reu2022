@@ -59,18 +59,18 @@ nrow = 1
 fig, axs = plt.subplots(ncols=ncol, nrows=nrow, figsize=(ncol*4, nrow*4))
 sampling_alg = 'pivot'
 
-G = nx.newman_watts_strogatz_graph(2000, 100, 0.7)
+G = nx.newman_watts_strogatz_graph(4000, 150, 0.7)
 edgelist = []
 for i in list(G.edges(data=True)):
     edgelist.append([i[0], i[1]])
 Node_Num_Min = 5
-Node_Num_Max = 30
-num_samples = 25
+Node_Num_Max = 55
+num_samples = 50
 NodeNum_List = []
 Average_Sync_List = []
-Ave_Tri_List = []
 Average_Clustering_list = []
 Average_Density_List = []
+Ave_Exc_Ratio = [] # Number of nodes with zerostate and not supposed to be excited to those should be excited
 for i in range(Node_Num_Min, Node_Num_Max):
     NodeNum_List.append(i)
 
@@ -83,33 +83,40 @@ for i in range(len(NodeNum_List)):
     X, embs = G.get_patches(k=k, sample_size=num_samples, skip_folded_hom=True)
     graph_list = Data_Gen_Class.generate_nxg(X)        
     Total_Sync = 0
-    Total_Tran = 0
+
     Total_Cluster = 0
     Total_Density = 0
+    Total_Ratio = 0
+    num_samples_wzero = 0
     for G in graph_list:
-        Transitivity = nx.transitivity(G)
-        Total_Tran += Transitivity
         Total_Cluster += nx.average_clustering(G)
         Total_Density += nx.density(G)
         s = np.random.randint(5, size=1*k)
         GHM_Class = GHM(G=G, S=s, Kap=Kap, ItNum=ItNum)
+        Ratio, NoZero = GHM_Class.Non_Excitation_Ratio()
+        if not NoZero:
+            Total_Ratio += Ratio
+            num_samples_wzero += 1
         state, label = GHM_Class.GHM1D()
         if label:
             Total_Sync += 1
-    Ave_Transitivity = Total_Tran/num_samples
-    Ave_Tri_List.append(Ave_Transitivity)
     Average_Sync_Perc =  Total_Sync/num_samples
     Average_Sync_List.append(Average_Sync_Perc)
     Average_Clustering = Total_Cluster/num_samples
     Average_Clustering_list.append(Average_Clustering)
     Average_Density = Total_Density/num_samples
     Average_Density_List.append(Average_Density)
+    if num_samples_wzero != 0:
+        Ave_Ratio = Total_Ratio/num_samples_wzero
+        Ave_Exc_Ratio.append(Ave_Ratio)
+    else:
+        Ave_Exc_Ratio.append(0)
 axs[0].plot(NodeNum_List, Average_Sync_List)
-axs[0].plot(NodeNum_List, Ave_Tri_List)
 axs[0].plot(NodeNum_List, Average_Clustering_list)
 axs[0].plot(NodeNum_List, Average_Density_List)
+axs[0].plot(NodeNum_List, Ave_Exc_Ratio)
 axs[0].set_xlabel('Node Number')
-axs[0].legend(['Average Sync Ratio','Transitivity','Average Clustering', 'Average Density'])
+axs[0].legend(['Average Sync Ratio','Average Clustering', 'Average Density','Average Stay Rested to Pre-Excitation'])
 
 
 
@@ -117,13 +124,13 @@ axs[0].legend(['Average Sync Ratio','Transitivity','Average Clustering', 'Averag
 ntwk ='UCLA26' # COVID_PPI, Wisconsin87, Caltech36
 ntwk_nonumber = ''.join([i for i in ntwk if not i.isdigit()])
 Node_Num_Min = 5
-Node_Num_Max = 30
-num_samples = 25
+Node_Num_Max = 55
+num_samples = 50
 NodeNum_List = []
 Average_Sync_List = []
-Ave_Tri_List = []
 Average_Clustering_list = []
 Average_Density_List = []
+Ave_Exc_Ratio = []
 for i in range(Node_Num_Min, Node_Num_Max):
     NodeNum_List.append(i)
 
@@ -137,44 +144,52 @@ for i in range(len(NodeNum_List)):
     X, embs = G.get_patches(k=k, sample_size=num_samples, skip_folded_hom=True)
     graph_list = Data_Gen_Class.generate_nxg(X)
     Total_Sync = 0
-    Total_Tran = 0
     Total_Cluster = 0
     Total_Density = 0
+    Total_Ratio = 0
+    num_samples_wzero = 0
     for G in graph_list:
-        Transitivity = nx.transitivity(G)
-        Total_Tran += Transitivity
         Total_Cluster += nx.average_clustering(G)
         Total_Density += nx.density(G)
         s = np.random.randint(5, size=1*k)
         GHM_Class = GHM(G=G, S=s, Kap=Kap, ItNum=ItNum)
+        Ratio, NoZero = GHM_Class.Non_Excitation_Ratio()
+        if not NoZero:
+            Total_Ratio += Ratio
+            num_samples_wzero += 1
         state, label = GHM_Class.GHM1D()
         if label:
             Total_Sync += 1
-    Ave_Transitivity = Total_Tran/num_samples
-    Ave_Tri_List.append(Ave_Transitivity)
     Average_Sync_Perc =  Total_Sync/num_samples
     Average_Sync_List.append(Average_Sync_Perc)
     Average_Clustering = Total_Cluster/num_samples
     Average_Clustering_list.append(Average_Clustering)
     Average_Density = Total_Density/num_samples
     Average_Density_List.append(Average_Density)
+    if num_samples_wzero != 0:
+        Ave_Ratio = Total_Ratio/num_samples_wzero
+        Ave_Exc_Ratio.append(Ave_Ratio)
+    else:
+        Ave_Exc_Ratio.append(0)
 axs[1].plot(NodeNum_List, Average_Sync_List)
-axs[1].plot(NodeNum_List, Ave_Tri_List)
 axs[1].plot(NodeNum_List, Average_Clustering_list)
 axs[1].plot(NodeNum_List, Average_Density_List)
+axs[1].plot(NodeNum_List, Ave_Exc_Ratio)
 axs[1].set_xlabel('Node Number')
-axs[1].legend(['Average Sync Ratio','Transitivity','Average Clustering','Average Density'])
+axs[1].legend(['Average Sync Ratio','Average Clustering', 'Average Density','Average Stay Rested to Pre-Excitation'])
+
+
 
 ntwk ='Caltech36' # COVID_PPI, Wisconsin87, Caltech36
 ntwk_nonumber = ''.join([i for i in ntwk if not i.isdigit()])
 Node_Num_Min = 5
-Node_Num_Max = 30
-num_samples = 25
+Node_Num_Max = 55
+num_samples = 50
 NodeNum_List = []
 Average_Sync_List = []
-Ave_Tri_List = []
 Average_Clustering_list = []
 Average_Density_List = []
+Ave_Exc_Ratio = []
 for i in range(Node_Num_Min, Node_Num_Max):
     NodeNum_List.append(i)
 
@@ -188,33 +203,39 @@ for i in range(len(NodeNum_List)):
     X, embs = G.get_patches(k=k, sample_size=num_samples, skip_folded_hom=True)
     graph_list = Data_Gen_Class.generate_nxg(X)
     Total_Sync = 0
-    Total_Tran = 0
     Total_Cluster = 0
     Total_Density = 0
+    Total_Ratio = 0
+    num_samples_wzero = 0
     for G in graph_list:
-        Transitivity = nx.transitivity(G)
-        Total_Tran += Transitivity
         Total_Cluster += nx.average_clustering(G)
         Total_Density += nx.density(G)
         s = np.random.randint(5, size=1*k)
         GHM_Class = GHM(G=G, S=s, Kap=Kap, ItNum=ItNum)
+        Ratio, NoZero = GHM_Class.Non_Excitation_Ratio()
+        if not NoZero:
+            Total_Ratio += Ratio
+            num_samples_wzero += 1
         state, label = GHM_Class.GHM1D()
         if label:
             Total_Sync += 1
-    Ave_Transitivity = Total_Tran/num_samples
-    Ave_Tri_List.append(Ave_Transitivity)
     Average_Sync_Perc =  Total_Sync/num_samples
     Average_Sync_List.append(Average_Sync_Perc)
     Average_Clustering = Total_Cluster/num_samples
     Average_Clustering_list.append(Average_Clustering)
     Average_Density = Total_Density/num_samples
     Average_Density_List.append(Average_Density)
+    if num_samples_wzero != 0:
+        Ave_Ratio = Total_Ratio/num_samples_wzero
+        Ave_Exc_Ratio.append(Ave_Ratio)
+    else:
+        Ave_Exc_Ratio.append(0)
 axs[2].plot(NodeNum_List, Average_Sync_List)
-axs[2].plot(NodeNum_List, Ave_Tri_List)
 axs[2].plot(NodeNum_List, Average_Clustering_list)
 axs[2].plot(NodeNum_List, Average_Density_List)
+axs[2].plot(NodeNum_List, Ave_Exc_Ratio)
 axs[2].set_xlabel('Node Number')
-axs[2].legend(['Average Sync Ratio','Transitivity','Average Clustering','Average Density'])
+axs[2].legend(['Average Sync Ratio','Average Clustering', 'Average Density','Average Stay Rested to Pre-Excitation'])
 
 axs[0].set_title('NWS')
 

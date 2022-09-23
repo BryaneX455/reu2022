@@ -72,8 +72,7 @@ class Display:
             plt.suptitle(title, fontsize=15)
             fig.subplots_adjust(left=0.1, bottom=0.1, right=0.9, top=0.9, wspace=0.2, hspace=0)
             fig.savefig(save_path, bbox_inches='tight')
-            
-            
+    
     def display_dictionary(self, title, W, dictionary_shape = None, save_name=None, score=None, grid_shape=None, figsize=[10,10]):
         k = int(np.sqrt(W.shape[0]))
         if dictionary_shape == None:
