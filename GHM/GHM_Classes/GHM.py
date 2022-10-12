@@ -21,6 +21,35 @@ class GHM:
         self.S = S
         self.Kap = Kap
         self.ItNum = ItNum
+    
+    def Non_Excitation_Ratio(self):
+        Non_Num = 0
+        Pre_Exc = 0
+        Ratio = 0
+        NoZero = False
+        for j in range(self.G.number_of_nodes()):
+            Onein = False
+            StateZero = False
+            NeighbNum = len(list(self.G.neighbors(list(self.G.nodes)[j])))
+            NeighbSet = self.G.neighbors(list(self.G.nodes)[j])
+            NeighbList = list(NeighbSet)
+            NeighbState = list(np.zeros(NeighbNum))
+            for k in range(NeighbNum):
+                NeighbState[k] = self.S[int(NeighbList[k])-1]
+                
+
+            if 1 in NeighbState:
+                Onein = True
+            if self.S[j] == 0:
+                StateZero = True
+                Pre_Exc += 1
+            if StateZero & (not Onein):
+                Non_Num += 1
+        if Pre_Exc == 0:
+            NoZero = True
+        else:
+            Ratio =  Non_Num/Pre_Exc
+        return Ratio, NoZero
         
     
     def GHM1D(self):
@@ -186,6 +215,78 @@ class GHM:
                 if S_Temp[j] == 0 and (not Onein):
                     if P <= Cut:
                         SN[j] = 0
+                    else:
+                        SN[j] = 1
+                elif S_Temp[j] == 0 and Onein:
+                    if P <= Cut:
+                        SN[j] = 1 
+                    else:
+                        SN[j] = 0
+                else:
+                    if (S_Temp[j] + 1) % self.Kap == 0:                        
+                        SN[j]=0
+                    else:       
+                        SN[j] = (SN[j] + 1) % self.Kap
+        
+        PhaseState = pd.DataFrame(St)
+        Sync = False           
+        if np.all((St[self.ItNum-1] == 0)):
+            Sync = True
+    
+        return PhaseState, St, Sync
+    
+    def GHMGridToArr_Stochastic_Exc(self, Cut):
+        """Implements Vectorized 2D Grennberg Hasting Model 
+    
+        Args:
+            G (NetworkX Graph): Input graph to the model
+            S (array): Current state
+            Kap (int): Kap-color GHM
+            ItNum (int): Number of iterations
+    
+        Returns:
+            Generates heatmap of time evolution of vectorized 2D GHM model
+        """
+        
+        GArr = list(np.zeros(self.G.number_of_nodes()))
+        ColNum = 0
+        for i in range(self.G.number_of_nodes()):
+            if list(self.G.nodes)[i][0] == 0:
+                ColNum += 1
+        RowNum = int(self.G.number_of_nodes()/ColNum)
+        for i in range(RowNum):
+            for j in range(ColNum):
+                GArr[int(i)*ColNum + int(j)] = int(i)*ColNum + int(j)
+        St = self.S
+        S_Temp = np.zeros(self.G.number_of_nodes())
+        SN = np.zeros(self.G.number_of_nodes())
+        NodeNum = self.G.number_of_nodes()
+        for i in range(len(self.S)):
+            SN[i] = self.S[i]
+        for i in range(len(self.S)):
+            S_Temp[i] = self.S[i]
+        for i in range(self.ItNum):
+            if i!=0:
+                for l1 in range(len(self.S)):
+                    S_Temp[l1] = SN[l1]
+                St = np.vstack((St,SN))
+            for j in range(NodeNum):
+                Onein = False
+                NeighbNum2D = len(list(self.G.neighbors(list(self.G.nodes)[j])))
+                NeighbSet2D = self.G.neighbors(list(self.G.nodes)[j])
+                NeighbList2D = list(NeighbSet2D)
+                NeighbPos = list(np.zeros(len(NeighbList2D)))
+                for k in range(len(NeighbList2D)):
+                    NeighbPos[k] = NeighbList2D[k][0]*ColNum+NeighbList2D[k][1]
+                NeighbState2D = np.zeros(NeighbNum2D)
+                for k in range(NeighbNum2D):
+                    NeighbState2D[k] = S_Temp[int(NeighbPos[k])]  
+    
+                if 1 in NeighbState2D:
+                    Onein = True
+                P = random.uniform(0, 1)
+                if S_Temp[j] == 0 and (not Onein):
+                    SN[j] = 0
                 elif S_Temp[j] == 0 and Onein:
                     if P <= Cut:
                         SN[j] = 1 % self.Kap
@@ -201,4 +302,29 @@ class GHM:
             Sync = True
     
         return PhaseState, St, Sync
+    
+    def GHM_Adj_Color_Diff(self, G, Node_Num, Kap, ItNum, title):
+        Sync = False
+        BaseName = 'Colored Adj Matrix'
+        s = np.random.randint(5, size=1*Node_Num)
+        if nx.is_connected(G):
+            Number_Nodes = G.number_of_nodes()
+            Adj_Mat = nx.to_numpy_matrix(G).tolist()
+            Full_Mat = list(np.empty((ItNum+1, Number_Nodes, Number_Nodes)))
+            GHM_Class = GHM(G, s, Kap, ItNum)
+            st, sync = GHM_Class.GHM1D()
+            for k in range(ItNum+1):
+                for i in range(Number_Nodes):
+                    for j in range(Number_Nodes):
+                        if k==0:
+                            Full_Mat[k][i][j] = int(Adj_Mat[i][j])
+                        else:
+                            Color_Diff = int(min([abs(st[k-1][i] - st[k-1][j]), 5 - abs(st[k-1][i] - st[k-1][j])]))
+                            Full_Mat[k][i][j] = Color_Diff
+            if sync:
+                Sync = True
+
+        
+        return Full_Mat, Sync
+
 
